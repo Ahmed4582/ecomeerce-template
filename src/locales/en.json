@@ -237,6 +237,13 @@
     "errorMessage": "We're sorry, but something unexpected happened. Please try again.",
     "goToHome": "Go to Home",
     "reloadPage": "Reload Page"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you are looking for does not exist or has been moved.",
+    "goToHome": "Go to Home",
+    "goBack": "Go Back",
+    "helpfulLinks": "You might be looking for:"
   }
 }
 

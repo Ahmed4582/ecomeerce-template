@@ -20,6 +20,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Profile = lazy(() => import("./pages/Profile"));
 const ProfileOrders = lazy(() => import("./pages/ProfileOrders"));
 const ProfileOrderDetail = lazy(() => import("./pages/ProfileOrderDetail"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -71,6 +72,8 @@ function App() {
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/forget-password" element={<ResetPassword />} />
                   <Route path="/track-order" element={<ProfileOrders />} />
+                  {/* 404 - Catch all unmatched routes */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </Router>
