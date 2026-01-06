@@ -1,8 +1,6 @@
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
-import Hero from "../components/homeThree/Hero";
-import CategoriesGrid from "../components/homeThree/CategoriesGrid";
-import ProductsWithSidebar from "../components/homeThree/ProductsWithSidebar";
+import { Hero, CategoriesGrid, ProductsWithSidebar } from "../components/homeThree";
 import HeroBanner from "../components/common/HeroBanner";
 import { useTranslation } from "react-i18next";
 import { homeThreeHeroBanners } from "../lib/data";

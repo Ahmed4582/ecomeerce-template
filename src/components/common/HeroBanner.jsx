@@ -220,6 +220,7 @@ const HeroBanner = ({
                 style={{
                   maxWidth: "100%",
                 }}
+                loading="lazy"
               />
             )}
           </div>

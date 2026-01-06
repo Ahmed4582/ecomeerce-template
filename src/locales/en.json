@@ -1,6 +1,8 @@
 {
   "common": {
     "search": "Search",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "searchPlaceholder": "Search ...",
     "login": "Login",
     "signUp": "Sign Up",
@@ -35,7 +37,9 @@
     "metaQuestDescription": "Meta is the new name that replaces Oculus",
     "samsungTabDescription": "The Samsung Galaxy Tab A8 64GB WiFi Gray is a mid-range tablet.",
     "confirm": "Confirm",
-    "verification": "Verification"
+    "verification": "Verification",
+    "loading": "Loading...",
+    "languageSwitcher": "Change language"
   },
   "cart": {
     "color": "Color",
@@ -56,7 +60,11 @@
     "backToShopping": "Back to shopping",
     "successTitle": "Success!",
     "successMessage": "The Request Has Been Sent Successfully And Is Being Processed",
-    "continue": "Continue"
+    "continue": "Continue",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "emptyCart": "Your cart is empty",
+    "emptyCartMessage": "Looks like you haven't added anything to your cart yet"
   },
   "header": {
     "slogan": "Slogan Here",
@@ -150,6 +158,7 @@
   "product": {
     "defaultTitle": "Mac Book pro2",
     "defaultDescription": "Sweeps the bottom, walls and water. Suitable for pools up to 100 square meters. Comes with 18 meter cable",
+    "appleWatchTitle": "Apple Watch Ultra 2",
     "appleWatchDescription": "Apple Watch Ultra 2 is Apple's most powerful smartwatch. Built with titanium for durability, it features a Retina display that can reach up to 3,000 nits of brightness. The customizable Action Button provides quick access to your favorite features. Advanced compass capabilities, depth tracking, and precise GPS make it perfect for outdoor adventures. Powered by the S9 SiP chip for faster performance, and the innovative Double Tap gesture lets you interact with your watch without touching the screen.",
     "availableColors": "Available Colors",
     "availableSizes": "Available Sizes",
@@ -189,6 +198,45 @@
     "message": "Message",
     "messagePlaceholder": "Enter your message",
     "sendMessage": "Send Message"
+  },
+  "profile": {
+    "personalInformation": "Personal Information",
+    "myOrders": "My Orders",
+    "profileInformation": "Profile Information",
+    "edit": "Edit",
+    "save": "Save",
+    "userName": "User Name",
+    "userNamePlaceholder": "user name",
+    "email": "Email",
+    "emailPlaceholder": "email",
+    "phone": "phone",
+    "phonePlaceholder": "phone",
+    "orderHistory": "Order History",
+    "orderId": "Order ID",
+    "date": "Date",
+    "status": "Status",
+    "amount": "Amount",
+    "action": "Action",
+    "orderDetails": "Order Details",
+    "backToOrders": "Back to Orders",
+    "orderSummary": "Order Summary",
+    "changeProfilePicture": "Change profile picture",
+    "status": {
+      "delivered": "Delivered",
+      "processing": "Processing",
+      "shipped": "Shipped"
+    }
+  },
+  "errors": {
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "requiredField": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidPhone": "Please enter a valid phone number",
+    "somethingWentWrong": "Something went wrong",
+    "errorMessage": "We're sorry, but something unexpected happened. Please try again.",
+    "goToHome": "Go to Home",
+    "reloadPage": "Reload Page"
   }
 }
 

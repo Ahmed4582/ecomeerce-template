@@ -31,6 +31,7 @@ const Header = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Menu Button */}
             <button
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="bg-brand-primary hover:bg-brand-primary-hover text-white p-2.5 sm:p-3 rounded-lg flex-shrink-0 transition-colors"
             >
@@ -66,7 +67,13 @@ const Header = () => {
             </button>
 
             {/* Search Bar */}
-            <form className="flex flex-1 gap-0">
+            <form 
+              className="flex flex-1 gap-0"
+              onSubmit={(e) => {
+                e.preventDefault();
+                // Handle search logic here
+              }}
+            >
               {/* Search Input */}
               <div className="flex-1 relative">
                 <img

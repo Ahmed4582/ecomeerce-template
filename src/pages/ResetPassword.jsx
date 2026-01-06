@@ -9,6 +9,8 @@ const ResetPassword = () => {
   });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,14 +20,37 @@ const ResetPassword = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle reset password logic here
-    if (formData.newPassword !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
+    setError("");
+    setIsLoading(true);
+    
+    try {
+      // Validate passwords match
+      if (formData.newPassword !== formData.confirmPassword) {
+        setError(t("errors.passwordMismatch"));
+        setIsLoading(false);
+        return;
+      }
+      
+      // Validate password length
+      if (formData.newPassword.length < 6) {
+        setError(t("errors.passwordTooShort"));
+        setIsLoading(false);
+        return;
+      }
+      
+      // Handle reset password logic here
+      // TODO: Implement actual password reset API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Reset password error:", error);
+      }
+      setError(t("errors.somethingWentWrong") || "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
-    console.log("Reset Password:", formData);
   };
 
   return (
@@ -79,6 +104,13 @@ const ResetPassword = () => {
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Confirm Password Field */}
           <div>
             <label
@@ -115,9 +147,17 @@ const ResetPassword = () => {
           {/* Confirm Button */}
           <button
             type="submit"
-            className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+            disabled={isLoading}
+            className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {t('common.confirm')}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{t('common.loading') || 'Loading...'}</span>
+              </>
+            ) : (
+              t('common.confirm')
+            )}
           </button>
         </form>
       </div>

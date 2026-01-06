@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function ProductCard({
@@ -15,10 +16,36 @@ export default function ProductCard({
 }) {
   const { t } = useTranslation();
 
-  const displayTitle = title || t("product.defaultTitle");
-  const displayDescription = description || t("product.defaultDescription");
-  const hasDiscount =
-    typeof discountPercent === "number" && discountPercent > 0;
+  // Memoize computed values
+  const displayTitle = useMemo(
+    () => title || t("product.defaultTitle"),
+    [title, t]
+  );
+  const displayDescription = useMemo(
+    () => description || t("product.defaultDescription"),
+    [description, t]
+  );
+  const hasDiscount = useMemo(
+    () => typeof discountPercent === "number" && discountPercent > 0,
+    [discountPercent]
+  );
+
+  // Memoize handlers
+  const handleAddToCart = useCallback(
+    (e) => {
+      e?.stopPropagation?.();
+      onAddToCart?.();
+    },
+    [onAddToCart]
+  );
+
+  const handleBuy = useCallback(
+    (e) => {
+      e?.stopPropagation?.();
+      onBuy?.();
+    },
+    [onBuy]
+  );
 
   return (
     <div className="group relative w-full  overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -37,6 +64,7 @@ export default function ProductCard({
             alt={displayTitle}
             className="h-[125px] w-auto object-contain transition-transform duration-300 ease-in-out group-hover:scale-110"
             draggable={false}
+            loading="lazy"
           />
         </div>
 
@@ -48,15 +76,17 @@ export default function ProductCard({
           <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center gap-2 px-3 pb-3 opacity-0 translate-y-full transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:translate-y-0">
             <button
               type="button"
-              onClick={onAddToCart}
+              onClick={handleAddToCart}
               className="rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-semibold text-white shadow-lg border-2 border-[#ff7a00] min-w-[120px] transition-colors duration-200"
+              aria-label={t("common.addToCart")}
             >
               {t("common.addToCart")}
             </button>
             <button
               type="button"
-              onClick={onBuy}
+              onClick={handleBuy}
               className="rounded-md px-4 py-2 text-sm font-semibold text-[#ff7a00] shadow-lg border-2 border-[#ff7a00] min-w-[120px] transition-colors duration-200"
+              aria-label={t("common.buy")}
             >
               {t("common.buy")}
             </button>

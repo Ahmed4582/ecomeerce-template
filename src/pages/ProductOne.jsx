@@ -1,59 +1,86 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import ProductCard from "../components/common/ProductCard";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { useCart } from "../context";
 
 const ProductOne = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
+  const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Product images
-  const productImages = [
-    "/images/watchimg.png",
-    "/images/watchimg.png",
-    "/images/watchimg.png",
-    
-  ];
-
-  // Available colors
-  const colors = [
-    { name: "Dark Blue", value: "#1e3a8a" },
-    { name: "Dark Red", value: "#991b1b" },
-    { name: "Dark Green", value: "#166534" },
-    { name: "Black", value: "#000000" },
-    { name: "Light Pink", value: "#fce7f3" },
-    { name: "Light Purple", value: "#f3e8ff" },
-    { name: "Light Gray", value: "#f3f4f6" },
-  ];
-
-  // Available sizes
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-
-  // Related products
-  const relatedProducts = Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    imageSrc: "/images/watchimg.png",
-    title: t("product.defaultTitle"),
-    description: t("product.defaultDescription"),
-    price: 50.55,
-    currency: "$",
-  }));
-
-  const currentPrice = 250.0;
-  const originalPrice = 350.0;
-  const discountPercent = Math.round(
-    ((originalPrice - currentPrice) / originalPrice) * 100
+  // Product images - memoized
+  const productImages = useMemo(
+    () => ["/images/watchimg.png", "/images/watchimg.png", "/images/watchimg.png"],
+    []
   );
 
-  const handleQuantityChange = (delta) => {
+  // Available colors - memoized
+  const colors = useMemo(
+    () => [
+      { name: "Dark Blue", value: "#1e3a8a" },
+      { name: "Dark Red", value: "#991b1b" },
+      { name: "Dark Green", value: "#166534" },
+      { name: "Black", value: "#000000" },
+      { name: "Light Pink", value: "#fce7f3" },
+      { name: "Light Purple", value: "#f3e8ff" },
+      { name: "Light Gray", value: "#f3f4f6" },
+    ],
+    []
+  );
+
+  // Available sizes - memoized
+  const sizes = useMemo(() => ["XS", "S", "M", "L", "XL", "XXL", "XXXL"], []);
+
+  // Related products - memoized
+  const relatedProducts = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => ({
+        id: i + 1,
+        imageSrc: "/images/watchimg.png",
+        title: t("product.defaultTitle"),
+        description: t("product.defaultDescription"),
+        price: 50.55,
+        currency: "$",
+      })),
+    [t]
+  );
+
+  // Price calculations - memoized
+  const { currentPrice, originalPrice, discountPercent } = useMemo(() => {
+    const current = 250.0;
+    const original = 350.0;
+    const discount = Math.round(((original - current) / original) * 100);
+    return { currentPrice: current, originalPrice: original, discountPercent: discount };
+  }, []);
+
+  // Handlers - useCallback for performance
+  const handleQuantityChange = useCallback((delta) => {
     setQuantity((prev) => Math.max(1, prev + delta));
-  };
+  }, []);
+
+  const handleAddToCart = useCallback(() => {
+    addItem({
+      id: Date.now(),
+      image: productImages[selectedImage],
+      name: t("product.appleWatchTitle"),
+      color: colors[selectedColor]?.name || "Default",
+      size: selectedSize || "M",
+      quantity: quantity,
+      individualPrice: currentPrice,
+    });
+  }, [addItem, productImages, selectedImage, colors, selectedColor, selectedSize, quantity, currentPrice, t]);
+
+  const handleBuy = useCallback(() => {
+    handleAddToCart();
+    // Navigate to cart or checkout
+  }, [handleAddToCart]);
 
   return (
     <div className="bg-background-light-gray min-h-screen">
@@ -90,6 +117,7 @@ const ProductOne = () => {
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
                     className="w-full h-full object-contain bg-gray-100 p-2"
+                    loading={index === 0 ? "eager" : "lazy"}
                   />
                 </button>
               ))}
@@ -115,6 +143,7 @@ const ProductOne = () => {
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
                     className="w-full h-full object-contain bg-gray-100"
+                    loading="lazy"
                   />
                 </button>
               ))}
@@ -129,8 +158,9 @@ const ProductOne = () => {
               <div className="w-full aspect-square max-w-full rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img
                   src={productImages[selectedImage]}
-                  alt="Apple Watch Ultra 2"
+                  alt={t("product.appleWatchTitle")}
                   className="w-full h-full object-contain p-4 lg:p-8"
+                  loading="eager"
                 />
               </div>
             </div>
@@ -143,7 +173,7 @@ const ProductOne = () => {
             } flex flex-col justify-center`}
           >
             <h1 className="text-2xl lg:text-3xl font-bold text-[#212844] mb-4">
-              Apple Watch Ultra 2
+              {t("product.appleWatchTitle")}
             </h1>
 
             {/* Price */}
@@ -234,6 +264,7 @@ const ProductOne = () => {
                       ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -241,14 +272,15 @@ const ProductOne = () => {
                   type="number"
                   value={quantity}
                   onChange={(e) =>
-                    setQuantity(Math.max(0, parseInt(e.target.value) || 0))
+                    setQuantity(Math.max(1, parseInt(e.target.value) || 1))
                   }
                   className="w-16 text-center border-0 focus:outline-none bg-white"
-                  min="0"
+                  min="1"
                 />
                 <button
                   onClick={() => handleQuantityChange(1)}
                   className="p-3 bg-[#FC813B] text-white hover:bg-[#e6733a] transition-colors"
+                  aria-label="Increase quantity"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -256,17 +288,21 @@ const ProductOne = () => {
 
               {/* Action Buttons */}
               <button
+                onClick={handleAddToCart}
                 className={`flex-1 bg-[#FC813B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#e6733a] transition-colors flex items-center justify-center gap-2 shadow-md ${
                   isRTL ? "sm:order-2" : ""
                 }`}
+                aria-label={t("common.addToCart")}
               >
                 <ShoppingCart className="w-5 h-5" />
                 {t("common.addToCart")}
               </button>
               <button
+                onClick={handleBuy}
                 className={`flex-1 bg-white text-[#FC813B] border-2 border-[#FC813B] px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors ${
                   isRTL ? "sm:order-1" : ""
                 }`}
+                aria-label={t("common.buy")}
               >
                 {t("common.buy")}
               </button>

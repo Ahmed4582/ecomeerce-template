@@ -56,8 +56,8 @@ const CartSummary = ({
             }}
             className="px-8 py-2 text-sm sm:text-base bg-[#FC813B] text-white font-semibold hover:bg-[#e6733a] transition-colors whitespace-nowrap "
             style={{
-              borderTopRightRadius: '0.5rem',
-              borderBottomRightRadius: '0.5rem'
+              borderTopRightRadius: "0.5rem",
+              borderBottomRightRadius: "0.5rem",
             }}
           >
             {t("cart.apply")}
@@ -141,6 +141,8 @@ const CartSummary = ({
                 ? "border-blue-500 bg-gray-100"
                 : "border-gray-300 hover:border-[#FC813B]"
             }`}
+            aria-label="Select VISA/Mastercard payment method"
+            aria-pressed={selectedPayment === "visa"}
           >
             <img
               src="/SVG/card.svg"
@@ -156,6 +158,8 @@ const CartSummary = ({
                 ? "border-blue-500 bg-gray-100"
                 : "border-gray-300 hover:border-[#FC813B]"
             }`}
+            aria-label="Select American Express payment method"
+            aria-pressed={selectedPayment === "amex"}
           >
             <img
               src="/SVG/card.svg"
@@ -171,6 +175,8 @@ const CartSummary = ({
                 ? "border-blue-500 bg-gray-100"
                 : "border-gray-300 hover:border-[#FC813B]"
             }`}
+            aria-label="Select cash on delivery payment method"
+            aria-pressed={selectedPayment === "cash"}
           >
             <img
               src="/SVG/cash.svg"
@@ -201,4 +207,3 @@ const CartSummary = ({
 };
 
 export default CartSummary;
-

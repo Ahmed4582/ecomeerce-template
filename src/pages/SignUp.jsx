@@ -14,6 +14,7 @@ const SignUp = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,10 +24,22 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle signup logic here
-    console.log("SignUp:", formData);
+    setIsLoading(true);
+    
+    try {
+      // Handle signup logic here
+      // TODO: Implement actual signup API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Signup error:", error);
+      }
+      // TODO: Show user-friendly error message
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -183,9 +196,17 @@ const SignUp = () => {
         <div className="flex justify-center items-center w-1/3 mx-auto ">
         <button
             type="submit"
-            className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+            disabled={isLoading}
+            className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {t('signup.createAccount')}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{t('common.loading') || 'Loading...'}</span>
+              </>
+            ) : (
+              t('signup.createAccount')
+            )}
           </button>
         </div>
         </form>

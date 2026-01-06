@@ -14,6 +14,7 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
             src={item.image}
             alt={item.name}
             className="w-full h-full object-contain p-1 sm:p-2"
+            loading="lazy"
           />
         </div>
 
@@ -43,12 +44,13 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
         <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
           <button
             onClick={() => onQuantityChange(item.id, -1)}
-            disabled={item.quantity <= 0}
+            disabled={item.quantity <= 1}
             className={`p-1.5 sm:p-2 transition-colors ${
-              item.quantity <= 0
+              item.quantity <= 1
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
+            aria-label={t("cart.decreaseQuantity") || "Decrease quantity"}
           >
             <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
@@ -56,15 +58,16 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
             type="number"
             value={item.quantity}
             onChange={(e) => {
-              const newQty = Math.max(0, parseInt(e.target.value) || 0);
+              const newQty = Math.max(1, parseInt(e.target.value) || 1);
               onQuantityChange(item.id, newQty - item.quantity);
             }}
             className="w-10 sm:w-12 md:w-16 text-center border-0 focus:outline-none bg-white text-xs sm:text-sm md:text-base"
-            min="0"
+            min="1"
           />
           <button
             onClick={() => onQuantityChange(item.id, 1)}
             className="p-1.5 sm:p-2 bg-[#FC813B] text-white hover:bg-[#e6733a] transition-colors"
+            aria-label={t("cart.increaseQuantity") || "Increase quantity"}
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>

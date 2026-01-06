@@ -1,6 +1,8 @@
 {
   "common": {
     "search": "بحث",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
     "searchPlaceholder": "بحث ...",
     "login": "تسجيل الدخول",
     "signUp": "إنشاء حساب",
@@ -35,7 +37,9 @@
     "metaQuestDescription": "Meta هو الاسم الجديد الذي يحل محل Oculus",
     "samsungTabDescription": "Samsung Galaxy Tab A8 64GB WiFi Gray هو جهاز لوحي متوسط المدى.",
     "confirm": "تأكيد",
-    "verification": "التحقق"
+    "verification": "التحقق",
+    "loading": "جاري التحميل...",
+    "languageSwitcher": "تغيير اللغة"
   },
   "cart": {
     "color": "اللون",
@@ -56,7 +60,11 @@
     "backToShopping": "العودة للتسوق",
     "successTitle": "نجح!",
     "successMessage": "تم إرسال الطلب بنجاح وهو قيد المعالجة",
-    "continue": "متابعة"
+    "continue": "متابعة",
+    "decreaseQuantity": "تقليل الكمية",
+    "increaseQuantity": "زيادة الكمية",
+    "emptyCart": "سلة التسوق فارغة",
+    "emptyCartMessage": "يبدو أنك لم تضيف أي شيء إلى سلة التسوق بعد"
   },
   "header": {
     "slogan": "الشعار هنا",
@@ -150,6 +158,7 @@
   "product": {
     "defaultTitle": "Mac Book pro2",
     "defaultDescription": "ينظف القاع والجدران والماء. مناسب للمسابح حتى 100 متر مربع. يأتي مع كابل 18 متر",
+    "appleWatchTitle": "Apple Watch Ultra 2",
     "appleWatchDescription": "Apple Watch Ultra 2 هو أقوى ساعة ذكية من Apple. مصنوعة من التيتانيوم للمتانة، وتتميز بشاشة Retina يمكن أن تصل إلى 3000 شمعة من السطوع. الزر القابل للتخصيص يوفر وصولاً سريعاً إلى الميزات المفضلة لديك. قدرات البوصلة المتقدمة وتتبع العمق ونظام GPS الدقيق تجعله مثالياً للمغامرات في الهواء الطلق. مدعوم برقاقة S9 SiP للأداء الأسرع، وإيماءة Double Tap المبتكرة تتيح لك التفاعل مع ساعتك دون لمس الشاشة.",
     "availableColors": "الألوان المتاحة",
     "availableSizes": "الأحجام المتاحة",
@@ -189,6 +198,45 @@
     "message": "الرسالة",
     "messagePlaceholder": "أدخل رسالتك",
     "sendMessage": "إرسال الرسالة"
+  },
+  "profile": {
+    "personalInformation": "المعلومات الشخصية",
+    "myOrders": "طلباتي",
+    "profileInformation": "معلومات الملف الشخصي",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "userName": "اسم المستخدم",
+    "userNamePlaceholder": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "phonePlaceholder": "الهاتف",
+    "orderHistory": "سجل الطلبات",
+    "orderId": "رقم الطلب",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "amount": "المبلغ",
+    "action": "الإجراء",
+    "orderDetails": "تفاصيل الطلب",
+    "backToOrders": "العودة للطلبات",
+    "orderSummary": "ملخص الطلب",
+    "changeProfilePicture": "تغيير صورة الملف الشخصي",
+    "status": {
+      "delivered": "تم التسليم",
+      "processing": "قيد المعالجة",
+      "shipped": "تم الشحن"
+    }
+  },
+  "errors": {
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "requiredField": "هذا الحقل مطلوب",
+    "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "invalidPhone": "يرجى إدخال رقم هاتف صحيح",
+    "somethingWentWrong": "حدث خطأ ما",
+    "errorMessage": "نأسف، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+    "goToHome": "الذهاب إلى الصفحة الرئيسية",
+    "reloadPage": "إعادة تحميل الصفحة"
   }
 }
 

@@ -5,9 +5,9 @@ import HeroBanner from "../components/common/HeroBanner";
 import { useTranslation } from "react-i18next";
 import { homeTwoHeroBanners } from "../lib/data";
 import {
-  ProductsCategories,
-  PopularProductsSection,
-} from "../components/homeTwo";
+    ProductsCategories,
+    PopularProductsSection,
+} from "../components/homeTwo/index";
 import DiscountedProducts from "../components/common/DiscountedProducts";
 // Import Swiper styles
 import "swiper/css";

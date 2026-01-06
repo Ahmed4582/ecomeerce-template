@@ -8,11 +8,24 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login:", { email, password });
+    setIsLoading(true);
+    
+    try {
+      // Handle login logic here
+      // TODO: Implement actual login API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Login error:", error);
+      }
+      // TODO: Show user-friendly error message
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -87,7 +100,7 @@ const Login = () => {
           {/* Forget Password Link */}
           <div className="text-right">
             <Link
-              to="/forget-password"
+              to="/reset-password"
               className="text-text-secondary hover:text-brand-primary text-xs sm:text-sm transition-colors"
             >
               {t('login.forgetPassword')}
@@ -97,9 +110,17 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+            disabled={isLoading}
+            className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {t('common.login')}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{t('common.loading') || 'Loading...'}</span>
+              </>
+            ) : (
+              t('common.login')
+            )}
           </button>
         </form>
 

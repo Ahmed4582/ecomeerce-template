@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import { CartItemsList, CartSummary, SuccessPopup } from "../components/cart";
+import { useCart } from "../context";
 
 const Cart = () => {
   const { t, i18n } = useTranslation();
@@ -11,85 +12,11 @@ const Cart = () => {
   const navigate = useNavigate();
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  // Sample cart items
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 2,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 3,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 4,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 5,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 6,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-    {
-      id: 7,
-      image: "/images/watchimg.png",
-      name: "Apple Watch Ultra 2",
-      color: "red",
-      size: "small",
-      quantity: 0,
-      individualPrice: 250.0,
-    },
-  ]);
+  // Use Cart Context instead of local state
+  const { cartItems, updateQuantity, removeItem: handleRemoveItem } = useCart();
 
   const handleQuantityChange = (id, delta) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const handleRemoveItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+    updateQuantity(id, delta);
   };
 
   const subtotal = cartItems.reduce(
@@ -115,27 +42,61 @@ const Cart = () => {
     <div className="bg-background-light-gray min-h-screen">
       <Header />
       <div className="px-4 sm:px-10 lg:px-16 py-8 lg:py-10">
-        <div
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 "
-          dir={isRTL ? "rtl" : "ltr"}
-        >
-          {/* Left: Cart Items */}
-          <CartItemsList
-            items={cartItems}
-            onQuantityChange={handleQuantityChange}
-            onRemoveItem={handleRemoveItem}
-          />
+        {cartItems.length === 0 ? (
+          /* Empty Cart State */
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-6">
+              <svg
+                className="w-24 h-24 mx-auto text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-[#212844] mb-2">
+              {t("cart.emptyCart") || "Your cart is empty"}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              {t("cart.emptyCartMessage") ||
+                "Looks like you haven't added anything to your cart yet"}
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-[#FC813B] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#e6733a] transition-colors"
+            >
+              {t("cart.backToShopping")}
+            </button>
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 "
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            {/* Left: Cart Items */}
+            <CartItemsList
+              items={cartItems}
+              onQuantityChange={handleQuantityChange}
+              onRemoveItem={handleRemoveItem}
+            />
 
-          {/* Right: Cart Summary */}
-          <CartSummary
-            subtotal={subtotal}
-            couponDiscount={couponDiscount}
-            discountAmount={discountAmount}
-            shipping={shipping}
-            total={total}
-            onCheckout={handleCheckout}
-          />
-        </div>
+            {/* Right: Cart Summary */}
+            <CartSummary
+              subtotal={subtotal}
+              couponDiscount={couponDiscount}
+              discountAmount={discountAmount}
+              shipping={shipping}
+              total={total}
+              onCheckout={handleCheckout}
+            />
+          </div>
+        )}
       </div>
 
       {/* Success Popup */}
