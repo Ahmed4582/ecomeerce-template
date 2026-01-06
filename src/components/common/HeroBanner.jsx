@@ -40,7 +40,7 @@ const HeroBanner = ({
         <div className="absolute inset-0 w-full h-full" />
 
         <div
-          className={`relative grid grid-cols-2 items-center gap-2 sm:gap-3 lg:gap-6  min-h-[250px] sm:min-h-[300px] lg:min-h-[400px] w-full`}
+          className={`relative grid grid-cols-2 items-center gap-2 sm:gap-3 lg:gap-6  min-h-[550px] sm:min-h-[300px] lg:min-h-[570px] w-full`}
           dir={isRTL ? "rtl" : "ltr"}
         >
           {/* Content */}
@@ -84,8 +84,8 @@ const HeroBanner = ({
                 fontFamily: "Abhaya Libre, serif",
                 fontWeight: 700,
                 fontStyle: "bold",
-                fontSize: "clamp(16px, 4vw, 70.29px)",
-                lineHeight: "clamp(20px, 4.5vw, 70.29px)",
+                fontSize: "50px",
+                lineHeight: "120%",
                 letterSpacing: "0%",
                 color: `${headlineColor}`,
               }}
