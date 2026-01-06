@@ -17,7 +17,11 @@ const ProductOne = () => {
 
   // Product images - memoized
   const productImages = useMemo(
-    () => ["/images/watchimg.png", "/images/watchimg.png", "/images/watchimg.png"],
+    () => [
+      "/images/watchimg.png",
+      "/images/watchimg.png",
+      "/images/watchimg.png",
+    ],
     []
   );
 
@@ -57,7 +61,11 @@ const ProductOne = () => {
     const current = 250.0;
     const original = 350.0;
     const discount = Math.round(((original - current) / original) * 100);
-    return { currentPrice: current, originalPrice: original, discountPercent: discount };
+    return {
+      currentPrice: current,
+      originalPrice: original,
+      discountPercent: discount,
+    };
   }, []);
 
   // Handlers - useCallback for performance
@@ -75,7 +83,17 @@ const ProductOne = () => {
       quantity: quantity,
       individualPrice: currentPrice,
     });
-  }, [addItem, productImages, selectedImage, colors, selectedColor, selectedSize, quantity, currentPrice, t]);
+  }, [
+    addItem,
+    productImages,
+    selectedImage,
+    colors,
+    selectedColor,
+    selectedSize,
+    quantity,
+    currentPrice,
+    t,
+  ]);
 
   const handleBuy = useCallback(() => {
     handleAddToCart();

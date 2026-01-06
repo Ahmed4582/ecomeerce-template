@@ -108,7 +108,7 @@ const HeroBanner = ({
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                <p
+                <div
                   style={{
                     fontFamily: "HK Grotesk, sans-serif",
                     fontWeight: 600,
@@ -131,7 +131,7 @@ const HeroBanner = ({
                       {discountValue} <span>{discountLabel}</span>
                     </p>
                   )}
-                </p>
+                </div>
               </div>
             </div>
 
