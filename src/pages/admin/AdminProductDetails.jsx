@@ -1,15 +1,12 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useProduct } from "../../hooks/productsHooks";
 import DataTable from "../../components/admin/common/DataTable";
 import ConfirmModal from "../../components/admin/common/ConfirmModal";
 import Modal from "../../components/admin/common/Modal";
-import {
-  useBlockProduct,
-  useDeleteProduct,
-  useUnBlockProduct,
-} from "../../hooks/adminProductsHooks";
+import { useDeleteProduct } from "../../hooks/adminProductsHooks";
 import { resolveApiAssetUrl } from "../../utils";
+import { Pencil, Percent, Trash2 } from "lucide-react";
 
 function getVariantQty(v) {
   return (
@@ -21,47 +18,101 @@ function getVariantQty(v) {
   );
 }
 
+function getAttrValue(variant, name) {
+  const attrs = variant?.variant_Attributes || [];
+  const n = String(name || "").toLowerCase();
+  const hit = attrs.find((a) => {
+    const en = String(a.attribute_Name_En || "").toLowerCase();
+    const ar = String(a.attribute_Name_Ar || "").toLowerCase();
+    return en === n || ar === n;
+  });
+  return hit?.value ?? null;
+}
+
+function normalizeColorToHex(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (!v) return null;
+  if (v.startsWith("#") && (v.length === 4 || v.length === 7)) return v;
+  const map = {
+    black: "#111827",
+    white: "#ffffff",
+    red: "#ef4444",
+    green: "#22c55e",
+    blue: "#3b82f6",
+    yellow: "#eab308",
+    orange: "#f97316",
+    purple: "#a855f7",
+    pink: "#ec4899",
+    gray: "#6b7280",
+    grey: "#6b7280",
+    brown: "#92400e",
+  };
+  return map[v] || null;
+}
+
 const AdminProductDetails = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const productId = Number(id);
 
   const productQuery = useProduct(productId);
   const delMutation = useDeleteProduct();
-  const blockMutation = useBlockProduct();
-  const unBlockMutation = useUnBlockProduct();
 
   const [activeImage, setActiveImage] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [discountOpen, setDiscountOpen] = useState(false);
   const [discount, setDiscount] = useState("");
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [didDelete, setDidDelete] = useState(false);
 
   const data = productQuery.data;
   const images = data?.images || [];
   const variants = data?.variants || [];
-  const isBlocked = !!data?.is_Block;
+
+  useEffect(() => {
+    const shouldOpen = !!location?.state?.openDiscount;
+    if (!shouldOpen) return;
+    setDiscountOpen(true);
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location?.state, location.pathname, navigate]);
 
   const variantColumns = useMemo(
     () => [
       {
-        key: "variant_Attributes",
-        header: "Attributes",
+        key: "size",
+        header: "Sizes",
+        render: (r) => getAttrValue(r, "Size") || "—",
+      },
+      {
+        key: "colors",
+        header: "Available Colors Of Size",
         render: (r) => {
-          const attrs = r.variant_Attributes || [];
-          if (!attrs.length) return "—";
+          const raw = getAttrValue(r, "Color");
+          const values = raw
+            ? String(raw)
+                .split(/[,\|/]/)
+                .map((x) => x.trim())
+                .filter(Boolean)
+            : [];
+          if (!values.length) return "—";
+
           return (
-            <div className="flex flex-wrap gap-1.5">
-              {attrs.slice(0, 4).map((a) => (
-                <span
-                  key={a.variant_Attribute_Id || `${a.attribute_Id}-${a.value}`}
-                  className="px-2 py-1 rounded-full bg-background-primary text-xs text-text-primary"
-                >
-                  {a.attribute_Name_En || a.attribute_Name_Ar || "Attr"}: {a.value}
-                </span>
-              ))}
-              {attrs.length > 4 && (
-                <span className="px-2 py-1 rounded-full bg-background-primary text-xs text-text-secondary">
-                  +{attrs.length - 4}
+            <div className="flex items-center gap-1.5">
+              {values.slice(0, 6).map((v, idx) => {
+                const hex = normalizeColorToHex(v);
+                return (
+                  <span
+                    key={`${v}-${idx}`}
+                    title={v}
+                    className="w-3.5 h-3.5 rounded-full border border-black/10"
+                    style={{ backgroundColor: hex || "#9ca3af" }}
+                  />
+                );
+              })}
+              {values.length > 6 && (
+                <span className="text-xs text-text-secondary">
+                  +{values.length - 6}
                 </span>
               )}
             </div>
@@ -86,6 +137,34 @@ const AdminProductDetails = () => {
           </span>
         ),
       },
+      {
+        key: "actions",
+        header: "Actions",
+        render: () => (
+          <div className="flex items-center gap-3 justify-end">
+            <button
+              type="button"
+              className="w-8 h-8 rounded-full bg-background-primary hover:bg-background-primary/70 flex items-center justify-center"
+              aria-label="Edit variant"
+              title="Edit"
+              onClick={() => {}}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center"
+              aria-label="Delete variant"
+              title="Delete"
+              onClick={() => {}}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+        headerClassName: "text-right",
+        cellClassName: "text-right",
+      },
     ],
     []
   );
@@ -108,42 +187,27 @@ const AdminProductDetails = () => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="w-10 h-10 rounded-full bg-background-white shadow-card border border-border-light"
-            title={isBlocked ? "Unblock" : "Block"}
-            onClick={async () => {
-              try {
-                if (isBlocked) await unBlockMutation.mutateAsync(productId);
-                else await blockMutation.mutateAsync(productId);
-              } catch {
-                // ignore
-              }
-            }}
-          >
-            🚫
-          </button>
-          <button
-            type="button"
-            className="w-10 h-10 rounded-full bg-background-white shadow-card border border-border-light"
-            title="Edit"
-            onClick={() => navigate(`/admin/products/${productId}/edit`)}
-          >
-            ✎
-          </button>
-          <button
-            type="button"
-            className="w-10 h-10 rounded-full bg-background-white shadow-card border border-border-light"
+            className="w-10 h-10 rounded-full bg-[#EAF7EF] text-[#1F9D55] hover:bg-[#DFF3E7] flex items-center justify-center"
             title="Discount"
             onClick={() => setDiscountOpen(true)}
           >
-            %
+            <Percent className="w-4 h-4" />
           </button>
           <button
             type="button"
-            className="w-10 h-10 rounded-full bg-background-white shadow-card border border-border-light text-red-600"
+            className="w-10 h-10 rounded-full bg-background-primary hover:bg-background-primary/70 flex items-center justify-center"
+            title="Edit"
+            onClick={() => navigate(`/admin/products/${productId}/edit`)}
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            className="w-10 h-10 rounded-full bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center"
             title="Delete"
             onClick={() => setConfirmDelete(true)}
           >
-            🗑
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -151,9 +215,9 @@ const AdminProductDetails = () => {
       <div className="bg-background-white rounded-2xl shadow-card p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Images */}
-          <div className="lg:col-span-5 grid grid-cols-5 gap-4">
-            <div className="col-span-1 space-y-3">
-              {images.slice(0, 6).map((img, idx) => (
+          <div className="lg:col-span-5 grid grid-cols-12 gap-4">
+            <div className="col-span-3 space-y-3">
+              {images.slice(0, 4).map((img, idx) => (
                 <button
                   type="button"
                   key={img.image_Id || img.image_Path || idx}
@@ -173,7 +237,7 @@ const AdminProductDetails = () => {
                 </button>
               ))}
             </div>
-            <div className="col-span-4 bg-background-primary rounded-2xl overflow-hidden flex items-center justify-center">
+            <div className="col-span-9 bg-background-primary rounded-2xl overflow-hidden flex items-center justify-center min-h-[280px]">
               {images[activeImage]?.image_Path ? (
                 <img
                   src={
@@ -250,11 +314,10 @@ const AdminProductDetails = () => {
           />
           <button
             type="button"
-            className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-3 rounded-lg font-semibold"
+            className="w-full bg-[#FC813B] hover:bg-[#e6733a] text-white py-3 rounded-xl font-semibold"
             onClick={() => {
-              // NOTE: Swagger does not provide a dedicated discount endpoint.
-              // We'll wire this to UpdateProduct when the backend requirements are confirmed.
               setDiscountOpen(false);
+              setSuccessOpen(true);
             }}
           >
             Add
@@ -266,18 +329,56 @@ const AdminProductDetails = () => {
         open={confirmDelete}
         title="Are You Sure You Want To Delete This Product?"
         confirmText="Delete"
+        cancelText="Back"
+        layout="stacked"
+        showIcon
         onClose={() => setConfirmDelete(false)}
         loading={delMutation.isPending}
         onConfirm={async () => {
           try {
             await delMutation.mutateAsync(productId);
             setConfirmDelete(false);
-            navigate("/admin/products");
+            setDidDelete(true);
+            setSuccessOpen(true);
           } catch {
             // ignore
           }
         }}
       />
+
+      {successOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/35"
+            aria-label="Close"
+            onClick={() => {
+              setSuccessOpen(false);
+              if (didDelete) navigate("/admin/products");
+              setDidDelete(false);
+            }}
+          />
+          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-card p-6 sm:p-8 text-center">
+            <div className="mx-auto w-20 h-20 rounded-full bg-[#FC813B]/10 flex items-center justify-center">
+              <span className="text-[#FC813B] text-3xl font-bold">✓</span>
+            </div>
+            <p className="mt-4 text-sm sm:text-base md:text-lg font-normal text-[#212844]">
+              The modification process was completed successfully
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSuccessOpen(false);
+                if (didDelete) navigate("/admin/products");
+                setDidDelete(false);
+              }}
+              className="mt-6 w-full bg-[#FC813B] hover:bg-[#e6733a] text-white px-6 py-3 rounded-2xl font-semibold transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

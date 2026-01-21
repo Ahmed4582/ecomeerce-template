@@ -4,14 +4,25 @@ import DataTable from "../../components/admin/common/DataTable";
 import Pagination from "../../components/admin/common/Pagination";
 import ConfirmModal from "../../components/admin/common/ConfirmModal";
 import { useProducts } from "../../hooks/productsHooks";
-import { useBlockProduct, useDeleteProduct, useUnBlockProduct } from "../../hooks/adminProductsHooks";
+import { useDeleteProduct } from "../../hooks/adminProductsHooks";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
+import {
+  Download,
+  Eye,
+  Percent,
+  Pencil,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
 
 const AdminProducts = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search, 350);
   const productsQuery = useProducts({
@@ -21,8 +32,6 @@ const AdminProducts = () => {
   });
 
   const delMutation = useDeleteProduct();
-  const blockMutation = useBlockProduct();
-  const unBlockMutation = useUnBlockProduct();
 
   const data = productsQuery.data;
   const rows = data?.products || [];
@@ -60,15 +69,17 @@ const AdminProducts = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/products/new")}
-          className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-semibold"
+          className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-semibold inline-flex items-center gap-2"
         >
+          <Plus className="w-4 h-4" />
           Add
         </button>
       </div>
 
       <div className="bg-background-white rounded-2xl shadow-card p-4">
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
             <input
               value={search}
               onChange={(e) => {
@@ -76,24 +87,23 @@ const AdminProducts = () => {
                 setPage(1);
               }}
               placeholder="Search..."
-              className="w-full bg-background-primary border border-border-light rounded-full px-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full bg-background-primary border border-border-light rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">
-              🔎
-            </span>
           </div>
 
           <div className="flex items-center gap-2 justify-end">
             <button
               type="button"
-              className="px-4 py-2 rounded-full bg-background-primary border border-border-light text-sm"
+              className="px-4 py-2 rounded-full bg-background-primary border border-border-light text-sm inline-flex items-center gap-2"
             >
+              <SlidersHorizontal className="w-4 h-4" />
               Filters
             </button>
             <button
               type="button"
-              className="px-4 py-2 rounded-full bg-background-primary border border-border-light text-sm"
+              className="px-4 py-2 rounded-full bg-background-primary border border-border-light text-sm inline-flex items-center gap-2"
             >
+              <Download className="w-4 h-4" />
               Export
             </button>
           </div>
@@ -111,50 +121,47 @@ const AdminProducts = () => {
             rows={rows}
             keyField="product_Id"
             renderActions={(row) => {
-              const isBlocked = !!row.is_Block;
-              const isBusy = blockMutation.isPending || unBlockMutation.isPending;
               return (
                 <>
                   <button
                     type="button"
-                    className="w-9 h-9 rounded-full bg-background-primary hover:bg-background-primary/70"
+                    className="w-9 h-9 rounded-full bg-[#EAF7EF] text-[#1F9D55] hover:bg-[#DFF3E7] flex items-center justify-center"
                     aria-label="View product"
                     onClick={() => navigate(`/admin/products/${row.product_Id}`)}
+                    title="View"
                   >
-                    👁
+                    <Eye className="w-4 h-4" />
                   </button>
                   <button
                     type="button"
-                    disabled={isBusy}
-                    className="w-9 h-9 rounded-full bg-background-primary hover:bg-background-primary/70"
-                    aria-label={isBlocked ? "Unblock product" : "Block product"}
-                    onClick={async () => {
-                      try {
-                        if (isBlocked) await unBlockMutation.mutateAsync(row.product_Id);
-                        else await blockMutation.mutateAsync(row.product_Id);
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                    title={isBlocked ? "Unblock" : "Block"}
+                    className="w-9 h-9 rounded-full bg-[#EAF7EF] text-[#1F9D55] hover:bg-[#DFF3E7] flex items-center justify-center"
+                    aria-label="Discount"
+                    title="Discount"
+                    onClick={() =>
+                      navigate(`/admin/products/${row.product_Id}`, {
+                        state: { openDiscount: true },
+                      })
+                    }
                   >
-                    🚫
+                    <Percent className="w-4 h-4" />
                   </button>
                   <button
                     type="button"
-                    className="w-9 h-9 rounded-full bg-background-primary hover:bg-background-primary/70"
+                    className="w-9 h-9 rounded-full bg-background-primary hover:bg-background-primary/70 flex items-center justify-center"
                     aria-label="Edit product"
                     onClick={() => navigate(`/admin/products/${row.product_Id}/edit`)}
+                    title="Edit"
                   >
-                    ✎
+                    <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     type="button"
-                    className="w-9 h-9 rounded-full bg-background-primary hover:bg-background-primary/70 text-red-600"
+                    className="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center"
                     aria-label="Delete product"
                     onClick={() => setPendingDelete(row)}
+                    title="Delete"
                   >
-                    🗑
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </>
               );
@@ -170,9 +177,12 @@ const AdminProducts = () => {
 
       <ConfirmModal
         open={!!pendingDelete}
-        title="Delete Product"
-        message="Are you sure you want to delete this product?"
+        title="Are You Sure You Want To Delete This Product?"
+        message={null}
         confirmText="Delete"
+        cancelText="Back"
+        layout="stacked"
+        showIcon
         onClose={() => setPendingDelete(null)}
         loading={delMutation.isPending}
         onConfirm={async () => {
@@ -180,11 +190,38 @@ const AdminProducts = () => {
           try {
             await delMutation.mutateAsync(pendingDelete.product_Id);
             setPendingDelete(null);
+            setSuccessOpen(true);
           } catch {
             // ignore
           }
         }}
       />
+
+      {successOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/35"
+            aria-label="Close"
+            onClick={() => setSuccessOpen(false)}
+          />
+          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-card p-6 sm:p-8 text-center">
+            <div className="mx-auto w-20 h-20 rounded-full bg-[#FC813B]/10 flex items-center justify-center">
+              <span className="text-[#FC813B] text-3xl font-bold">✓</span>
+            </div>
+            <p className="mt-4 text-sm sm:text-base md:text-lg font-normal text-[#212844]">
+              The modification process was completed successfully
+            </p>
+            <button
+              type="button"
+              onClick={() => setSuccessOpen(false)}
+              className="mt-6 w-full bg-[#FC813B] hover:bg-[#e6733a] text-white px-6 py-3 rounded-2xl font-semibold transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
