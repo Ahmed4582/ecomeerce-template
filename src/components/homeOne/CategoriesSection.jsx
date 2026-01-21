@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { categoryCards } from "../../lib/data";
+import { useCategories } from "../../hooks/categoriesHooks";
 import HeroBanner from "../common/HeroBanner";
+import { Link } from "react-router-dom";
+import { resolveApiAssetUrl } from "../../utils";
 
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -16,51 +17,63 @@ const CategoriesSection = () => {
   const isRTL = i18n.language === "ar";
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
-  const getCategoryTranslation = (name) => {
-    const categoryMap = {
-      Electronics: "categories.electronics",
-      "Home Lights": "categories.homeLights",
-      Cosmetics: "categories.cosmetics",
-      Furniture: "categories.furniture",
-    };
-    return categoryMap[name] || name;
-  };
+  const [page] = useState(1);
+
+  const { data, isLoading, isError } = useCategories({
+    pageNumber: page,
+    pageSize: 8,
+  });
+
+  if (isLoading) {
+    return <p className="px-4 py-10">{t("common.loading")}</p>;
+  }
+
+  if (isError) {
+    return <p className="px-4 py-10 text-red-500">Failed to load categories</p>;
+  }
+
+  const categories = data?.categories || [];
+
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10 ">
+    <div id="categories-section" className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
       {/* Section Title */}
       <h2 className="text-2xl lg:text-3xl font-bold text-[#212844] mb-4 lg:mb-6">
         {t("common.categories")}
       </h2>
 
-      {/* Desktop Grid - Hidden on mobile */}
+      {/* ===== Desktop Grid ===== */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-4 lg:gap-6">
-        {categoryCards.map((category) => (
-          <div
-            key={category.id}
-            className="relative rounded-xl overflow-hidden shadow-lg min-h-[320px] lg:min-h-[190px] group cursor-pointer"
+        {categories.map((category) => (
+          <Link
+            to={`/category/${category.category_Id}`}
+            key={category.category_Id}
           >
-            {/* Background Image */}
+            {(() => {
+              const bgUrl = resolveApiAssetUrl(category.category_Image, "CateImg");
+              return (
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: `url(${category.image})`,
-              }}
+              key={category.category_Id}
+              className="relative rounded-xl overflow-hidden shadow-lg min-h-[190px] group cursor-pointer"
             >
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors"></div>
-            </div>
+              {/* Background */}
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-gray-500"
+                style={{
+                  backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+                }}
+              >
+                <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors" />
+              </div>
 
-            {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-center p-5 lg:p-6">
-              <div className="flex flex-col justify-center">
-                <h3 className="text-xl lg:text-2xl font-normal text-white mb-1">
-                  {t(getCategoryTranslation(category.name))}
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col justify-center p-6">
+                <h3 className="text-xl text-white mb-1">
+                  {isRTL
+                    ? category.category_Name_Ar
+                    : category.category_Name_Eng}
                 </h3>
-                <p className="text-sm lg:text-base text-[#FFFFFF] opacity-80">
-                  {category.productsCount} {t("common.products")}
-                </p>
                 <div
-                  className={`flex items-center text-white font-medium text-sm lg:text-xl mt-4 transition-transform ${
+                  className={`flex items-center text-white font-medium mt-4 transition-transform ${
                     isRTL
                       ? "group-hover:-translate-x-1"
                       : "group-hover:translate-x-1"
@@ -71,58 +84,49 @@ const CategoriesSection = () => {
                 </div>
               </div>
             </div>
-          </div>
+              );
+            })()}
+          </Link>
         ))}
       </div>
 
-      {/* Mobile/Tablet Swiper - Visible on small screens */}
+      {/* ===== Mobile Swiper ===== */}
       <div className="lg:hidden">
         <Swiper
           modules={[Navigation, Pagination]}
           spaceBetween={16}
           slidesPerView={1.2}
           breakpoints={{
-            640: {
-              slidesPerView: 2,
-              spaceBetween: 16,
-            },
-            768: {
-              slidesPerView: 2.5,
-              spaceBetween: 20,
-            },
+            640: { slidesPerView: 2 },
+            768: { slidesPerView: 2.5 },
           }}
-          pagination={false}
-          navigation={false}
-          className="categories-swiper"
         >
-          {categoryCards.map((category) => (
-            <SwiperSlide key={category.id}>
-              <div className="relative rounded-xl overflow-hidden shadow-lg min-h-[200px] group cursor-pointer">
-                {/* Background Image */}
+          {categories.map((category) => (
+            <SwiperSlide key={category.category_Id}>
+              {(() => {
+                const bgUrl = resolveApiAssetUrl(category.category_Image, "CateImg");
+                return (
+              <div className="relative rounded-xl overflow-hidden shadow-lg min-h-[200px] group">
                 <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-gray-800"
+                  className="absolute inset-0 bg-cover bg-center bg-gray-500"
                   style={{
-                    backgroundImage: category.image
-                      ? `url(${category.image})`
-                      : "none",
+                    backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
                   }}
                 >
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors"></div>
+                  <div className="absolute inset-0 bg-black/50" />
                 </div>
 
-                {/* Content */}
                 <div className="relative z-10 h-full flex flex-col justify-between p-6">
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2">
-                      {t(getCategoryTranslation(category.name))}
+                    <h3 className="text-xl text-white mb-2">
+                      {isRTL
+                        ? category.category_Name_Ar
+                        : category.category_Name_Eng}
                     </h3>
-                    <p className="text-sm text-white/80">
-                      {category.productsCount} {t("common.products")}
-                    </p>
                   </div>
+
                   <div
-                    className={`flex items-center text-white font-medium text-sm transition-transform ${
+                    className={`flex items-center text-white transition-transform ${
                       isRTL
                         ? "group-hover:-translate-x-1"
                         : "group-hover:translate-x-1"
@@ -135,32 +139,24 @@ const CategoriesSection = () => {
                   </div>
                 </div>
               </div>
+                );
+              })()}
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
 
+      {/* Hero Banner */}
       <div className="mt-6 lg:mt-8">
         <HeroBanner
           backgroundImage="#212844"
           productImage="watch.png"
-          productAlt="watch"
           eyebrowText={t("common.bestDeal")}
           headline={t("common.smartWearable")}
           discountText={t("common.saleUpTo")}
           discountValue="48%"
           discountLabel={t("common.off")}
           showCta={false}
-          ctaText={t("common.shopNow")}
-          onCtaClick={() => {}}
-          activeDot={0}
-          totalDots={6}
-          showPaginationBottom={true}
-          showSpan={true}
-          discountTextColor="#FFFFFF7A"
-          discountValueColor="#FFFFFF"
-          headlineColor="#FFFFFF"
-          eyebrowColor="#FFFFFF"
         />
       </div>
     </div>

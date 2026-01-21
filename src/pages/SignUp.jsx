@@ -1,20 +1,24 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useRegister } from "../hooks/useAuth";
 import { socialLogin } from "../lib/data";
 
 const SignUp = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const registerMutation = useRegister();
+
   const [formData, setFormData] = useState({
     email: "",
-    mobile: "",
-    fullName: "",
+    username: "",
+    address: "",
     password: "",
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,23 +26,39 @@ const SignUp = () => {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user types
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    
+    setError("");
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError(t("errors.passwordMismatch") || "Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError(t("errors.passwordTooShort") || "Password must be at least 6 characters");
+      return;
+    }
+
     try {
-      // Handle signup logic here
-      // TODO: Implement actual signup API call
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error("Signup error:", error);
-      }
-      // TODO: Show user-friendly error message
-    } finally {
-      setIsLoading(false);
+      const registerData = {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        address: formData.address,
+        lan: i18n.language || "en",
+      };
+
+      await registerMutation.mutateAsync(registerData);
+      // After successful registration, navigate to email verification.
+      navigate(`/email-verification?email=${encodeURIComponent(formData.email)}`);
+    } catch (err) {
+      setError(err?.message || t("errors.signupFailed") || "Registration failed");
     }
   };
 
@@ -54,6 +74,13 @@ const SignUp = () => {
             {t('signup.createAccount')}
           </h2>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Sign Up Form */}
         <form
@@ -82,41 +109,45 @@ const SignUp = () => {
               />
             </div>
 
-            {/* Mobile Number Field */}
+            {/* Address Field */}
             <div>
               <label
-                htmlFor="mobile"
+                htmlFor="address"
                 className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
               >
-                {t('signup.mobileNumber')}
+                {t("signup.address", { defaultValue: "Address" })}
               </label>
               <input
-                type="tel"
-                id="mobile"
-                name="mobile"
-                value={formData.mobile}
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
-                placeholder={t('signup.mobilePlaceholder')}
+                placeholder={t("signup.addressPlaceholder", {
+                  defaultValue: "Enter address",
+                })}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border-input border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                 required
               />
             </div>
 
-            {/* Full Name Field */}
+            {/* Username Field */}
             <div className="sm:col-span-2 lg:col-span-1">
               <label
-                htmlFor="fullName"
+                htmlFor="username"
                 className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
               >
-                {t('signup.fullName')}
+                {t("signup.username", { defaultValue: "Username" })}
               </label>
               <input
                 type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
-                placeholder={t('signup.fullNamePlaceholder')}
+                placeholder={t("signup.usernamePlaceholder", {
+                  defaultValue: "Enter username",
+                })}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border-input border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                 required
               />
@@ -196,10 +227,10 @@ const SignUp = () => {
         <div className="flex justify-center items-center w-1/3 mx-auto ">
         <button
             type="submit"
-            disabled={isLoading}
+            disabled={registerMutation.isPending}
             className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {isLoading ? (
+            {registerMutation.isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>{t('common.loading') || 'Loading...'}</span>

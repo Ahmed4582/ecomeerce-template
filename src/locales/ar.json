@@ -1,12 +1,14 @@
 {
   "common": {
     "search": "بحث",
+    "clear": "مسح",
     "showPassword": "إظهار كلمة المرور",
     "hidePassword": "إخفاء كلمة المرور",
     "searchPlaceholder": "بحث ...",
     "login": "تسجيل الدخول",
     "signUp": "إنشاء حساب",
     "loginSignUp": "تسجيل الدخول / إنشاء حساب",
+    "logout": "تسجيل الخروج",
     "myCart": "سلة التسوق",
     "cart": "السلة",
     "customerService": "خدمة العملاء",
@@ -14,11 +16,11 @@
     "trackOrder": "تتبع طلبك",
     "shopNow": "تسوق الآن",
     "viewMoreCategories": "عرض المزيد من الفئات",
-    "addToCart": "اضافة  ",
+    "addToCart": "أضف إلى السلة",
     "buy": "شراء",
-    "products": "منتج",
+    "products": "منتجات",
     "off": "خصم",
-    "saleUpTo": "تخفيضات تصل إلى 80% خصم",
+    "saleUpTo": "تخفيضات تصل إلى ",
     "bestDeal": "أفضل صفقة أونلاين على الساعات الذكية",
     "smartWearable": "أجهزة ذكية قابلة للارتداء",
     "categories": "الفئات",
@@ -39,6 +41,11 @@
     "confirm": "تأكيد",
     "verification": "التحقق",
     "loading": "جاري التحميل...",
+    "noResults": "لا توجد نتائج.",
+    "errorLoading": "حدث خطأ أثناء التحميل",
+    "tryAgainLater": "يرجى المحاولة مرة أخرى لاحقًا",
+    "noDataFound": "لا توجد بيانات",
+    "noProductsAvailable": "لا توجد منتجات متاحة في هذه الفئة حاليًا",
     "languageSwitcher": "تغيير اللغة"
   },
   "cart": {
@@ -48,6 +55,11 @@
     "totalPrice": "السعر الإجمالي",
     "removeItem": "إزالة العنصر",
     "cartTotal": "إجمالي السلة",
+    "shippingInfo": "معلومات الشحن",
+    "address": "العنوان",
+    "addressPlaceholder": "أدخل عنوانك",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "أدخل رقم هاتفك",
     "couponApply": "تطبيق الكوبون",
     "enterCouponCode": "أدخل رمز الكوبون",
     "apply": "تطبيق",
@@ -64,7 +76,8 @@
     "decreaseQuantity": "تقليل الكمية",
     "increaseQuantity": "زيادة الكمية",
     "emptyCart": "سلة التسوق فارغة",
-    "emptyCartMessage": "يبدو أنك لم تضيف أي شيء إلى سلة التسوق بعد"
+    "emptyCartMessage": "يبدو أنك لم تضيف أي شيء إلى سلة التسوق بعد",
+    "itemsInCart": "{{count}} عنصر في سلة التسوق"
   },
   "header": {
     "slogan": "الشعار هنا",
@@ -120,6 +133,10 @@
     "pleaseEnterDetails": "يرجى إدخال بياناتك",
     "emailAddress": "عنوان البريد الإلكتروني",
     "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "address": "العنوان",
+    "addressPlaceholder": "أدخل عنوانك",
+    "username": "اسم المستخدم",
+    "usernamePlaceholder": "أدخل اسم المستخدم",
     "mobileNumber": "رقم الجوال",
     "mobilePlaceholder": "أدخل رقم جوالك",
     "fullName": "الاسم الكامل",
@@ -132,14 +149,31 @@
   },
   "emailVerification": {
     "checkEmail": "يرجى التحقق من بريدك الإلكتروني",
-    "enterCode": "أدخل رمز التحقق الذي أرسلناه للتو إلى بريدك الإلكتروني"
+    "enterCode": "أدخل رمز التحقق الذي أرسلناه للتو إلى بريدك الإلكتروني",
+    "success": "تم تفعيل الحساب بنجاح!",
+    "codeResent": "تمت إعادة إرسال رمز التحقق بنجاح!",
+    "resendCode": "إعادة إرسال الرمز"
   },
   "resetPassword": {
     "resetPassword": "إعادة تعيين كلمة المرور",
     "enterNewPassword": "أدخل كلمة المرور الجديدة",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "resetCode": "رمز إعادة التعيين",
+    "codePlaceholder": "أدخل رمز إعادة التعيين من البريد الإلكتروني",
     "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
     "confirmPassword": "تأكيد كلمة المرور",
-    "passwordPlaceholder": "أدخل كلمة المرور"
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "success": "تمت إعادة تعيين كلمة المرور بنجاح!"
+  },
+  "forgetPassword": {
+    "pleaseEnterEmail": "يرجى إدخال بريدك الإلكتروني",
+    "forgetPassword": "نسيت كلمة المرور",
+    "emailAddress": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "sendCode": "إرسال رمز إعادة التعيين",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "success": "تم إرسال رمز إعادة التعيين إلى بريدك الإلكتروني"
   },
   "footer": {
     "downloadApp": "قم بتنزيل التطبيق بالنقر على الرابط أدناه:",
@@ -163,7 +197,16 @@
     "availableColors": "الألوان المتاحة",
     "availableSizes": "الأحجام المتاحة",
     "quantity": "الكمية",
-    "relatedProducts": "المنتجات ذات الصلة"
+    "relatedProducts": "المنتجات ذات الصلة",
+    "selectSizeFirst": "يرجى اختيار المقاس أولاً.",
+    "variantNotFound": "لم يتم العثور على الخيار المطلوب."
+  },
+  "discounts": {
+    "label": "خصومات",
+    "emptyShort": "لا توجد منتجات مخفضة حالياً.",
+    "error": "تعذّر تحميل المنتجات المخفضة.",
+    "noneTitle": "لا توجد منتجات عليها خصومات حالياً",
+    "noneHint": "انتظر قريباً — سيتم إضافة عروض جديدة."
   },
   "language": {
     "english": "English",
@@ -200,21 +243,24 @@
     "sendMessage": "إرسال الرسالة"
   },
   "profile": {
+    "profile": "الملف الشخصي",
     "personalInformation": "المعلومات الشخصية",
     "myOrders": "طلباتي",
     "profileInformation": "معلومات الملف الشخصي",
     "edit": "تعديل",
     "save": "حفظ",
     "userName": "اسم المستخدم",
-    "userNamePlaceholder": "اسم المستخدم",
+    "userNamePlaceholder": "أدخل اسم المستخدم",
     "email": "البريد الإلكتروني",
-    "emailPlaceholder": "البريد الإلكتروني",
-    "phone": "الهاتف",
-    "phonePlaceholder": "الهاتف",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "address": "العنوان",
+    "addressPlaceholder": "أدخل عنوانك",
+    "noOrders": "لا توجد طلبات",
+    "noOrderItems": "لا توجد عناصر لهذا الطلب",
     "orderHistory": "سجل الطلبات",
     "orderId": "رقم الطلب",
     "date": "التاريخ",
-    "status": "الحالة",
+    "statusLabel": "الحالة",
     "amount": "المبلغ",
     "action": "الإجراء",
     "orderDetails": "تفاصيل الطلب",
@@ -224,7 +270,10 @@
     "status": {
       "delivered": "تم التسليم",
       "processing": "قيد المعالجة",
-      "shipped": "تم الشحن"
+      "shipped": "تم الشحن",
+      "pending": "قيد الانتظار",
+      "new": "جديد",
+      "delivery": "قيد التوصيل"
     }
   },
   "errors": {
@@ -234,6 +283,14 @@
     "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
     "invalidPhone": "يرجى إدخال رقم هاتف صحيح",
     "somethingWentWrong": "حدث خطأ ما",
+    "loginFailed": "فشل تسجيل الدخول",
+    "signupFailed": "فشل إنشاء الحساب",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailAndCodeRequired": "البريد الإلكتروني والرمز مطلوبان",
+    "verificationFailed": "فشل التحقق",
+    "resendFailed": "فشل إعادة إرسال الرمز",
+    "forgetPasswordFailed": "فشل إرسال رمز إعادة التعيين",
+    "resetPasswordFailed": "فشل إعادة تعيين كلمة المرور",
     "errorMessage": "نأسف، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
     "goToHome": "الذهاب إلى الصفحة الرئيسية",
     "reloadPage": "إعادة تحميل الصفحة"
@@ -244,6 +301,13 @@
     "goToHome": "الذهاب إلى الصفحة الرئيسية",
     "goBack": "العودة",
     "helpfulLinks": "قد تبحث عن:"
+  },
+  "pages": {
+    "shop": "المتجر",
+    "pages": "الصفحات",
+    "blogs": "المدونة",
+    "aboutUs": "من نحن",
+    "comingSoon": "قريبًا."
   }
 }
 

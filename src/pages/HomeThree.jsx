@@ -1,5 +1,3 @@
-import Header from "../components/common/Header";
-import Footer from "../components/common/Footer";
 import { Hero, CategoriesGrid, ProductsWithSidebar } from "../components/homeThree";
 import HeroBanner from "../components/common/HeroBanner";
 import { useTranslation } from "react-i18next";
@@ -9,7 +7,6 @@ const HomeThree = () => {
   const isRTL = i18n.language === "ar";
   return (
     <div className="bg-background-light-gray">
-      <Header />
       <Hero />
       <CategoriesGrid />
       <ProductsWithSidebar />
@@ -86,7 +83,6 @@ const HomeThree = () => {
         </div>
       </div>
       <ProductsWithSidebar />
-      <Footer />
     </div>
   );
 };

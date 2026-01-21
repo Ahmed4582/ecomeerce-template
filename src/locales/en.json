@@ -1,17 +1,19 @@
 {
   "common": {
     "search": "Search",
+    "clear": "Clear",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "searchPlaceholder": "Search ...",
     "login": "Login",
     "signUp": "Sign Up",
     "loginSignUp": "Login/ Sign Up",
+    "logout": "Logout",
     "myCart": "My cart",
     "cart": "Cart",
     "customerService": "Customer service",
     "deliverToLocation": "Deliver to your location",
-    "trackOrder": "Track you order",
+    "trackOrder": "Track your order",
     "shopNow": "Shop now",
     "viewMoreCategories": "View more categories",
     "addToCart": "Add To Cart",
@@ -39,6 +41,11 @@
     "confirm": "Confirm",
     "verification": "Verification",
     "loading": "Loading...",
+    "noResults": "No results.",
+    "errorLoading": "Error loading",
+    "tryAgainLater": "Please try again later",
+    "noDataFound": "No data found",
+    "noProductsAvailable": "No products available in this category yet",
     "languageSwitcher": "Change language"
   },
   "cart": {
@@ -48,6 +55,11 @@
     "totalPrice": "Total Price",
     "removeItem": "Remove item",
     "cartTotal": "Cart Total",
+    "shippingInfo": "Shipping Information",
+    "address": "Address",
+    "addressPlaceholder": "Enter your address",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Enter your phone number",
     "couponApply": "Coupon Apply",
     "enterCouponCode": "Enter Coupon Code",
     "apply": "Apply",
@@ -64,7 +76,8 @@
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
     "emptyCart": "Your cart is empty",
-    "emptyCartMessage": "Looks like you haven't added anything to your cart yet"
+    "emptyCartMessage": "Looks like you haven't added anything to your cart yet",
+    "itemsInCart": "{{count}} items in your cart"
   },
   "header": {
     "slogan": "Slogan Here",
@@ -80,8 +93,8 @@
     "freeShippingDesc": "Free Shipping with discount",
     "greatSupport": "Great Support 24/7",
     "greatSupportDesc": "Instant access to Contact",
-    "securePayment": "100% Sucure Payment",
-    "securePaymentDesc": "We ensure your money is save",
+    "securePayment": "100% Secure Payment",
+    "securePaymentDesc": "We ensure your money is safe",
     "returnPolicy": "Return Policy",
     "returnPolicyDesc": "Includes return of goods"
   },
@@ -120,6 +133,10 @@
     "pleaseEnterDetails": "Please Enter Your Details",
     "emailAddress": "Email Address",
     "emailPlaceholder": "enter your email",
+    "address": "Address",
+    "addressPlaceholder": "Enter your address",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
     "mobileNumber": "Mobile Number",
     "mobilePlaceholder": "enter your mobile number",
     "fullName": "Full Name",
@@ -132,22 +149,39 @@
   },
   "emailVerification": {
     "checkEmail": "Please Check Your Email",
-    "enterCode": "Enter The Verification Code We Just Sent To Your Email"
+    "enterCode": "Enter The Verification Code We Just Sent To Your Email",
+    "success": "Account verified successfully!",
+    "codeResent": "Verification code resent successfully!",
+    "resendCode": "Resend Code"
   },
   "resetPassword": {
     "resetPassword": "Reset Password",
     "enterNewPassword": "Enter New Password",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "resetCode": "Reset Code",
+    "codePlaceholder": "Enter reset code from email",
     "newPasswordPlaceholder": "enter your new password",
     "confirmPassword": "Confirm Password",
-    "passwordPlaceholder": "enter your password"
+    "passwordPlaceholder": "enter your password",
+    "success": "Password reset successfully!"
+  },
+  "forgetPassword": {
+    "pleaseEnterEmail": "Please enter your email address",
+    "forgetPassword": "Forget Password",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "sendCode": "Send Reset Code",
+    "backToLogin": "Back to Login",
+    "success": "Password reset code has been sent to your email"
   },
   "footer": {
     "downloadApp": "Download the app by clicking the link below :",
     "pages": "Pages",
     "service": "Service",
     "contact": "Contact",
-    "socialMedia": "Sosial media",
-    "homeItWork": "Home it work",
+    "socialMedia": "Social media",
+    "homeItWork": "How it works",
     "pricing": "Pricing",
     "blog": "Blog",
     "demo": "Demo",
@@ -163,7 +197,16 @@
     "availableColors": "Available Colors",
     "availableSizes": "Available Sizes",
     "quantity": "Quantity",
-    "relatedProducts": "Related Products"
+    "relatedProducts": "Related Products",
+    "selectSizeFirst": "Please select a size first.",
+    "variantNotFound": "Variant not found."
+  },
+  "discounts": {
+    "label": "Discounts",
+    "emptyShort": "No discounted products available right now.",
+    "error": "Failed to load discounted products.",
+    "noneTitle": "No discounted products right now",
+    "noneHint": "Coming soon — new offers will be added."
   },
   "language": {
     "english": "English",
@@ -200,21 +243,24 @@
     "sendMessage": "Send Message"
   },
   "profile": {
+    "profile": "Profile",
     "personalInformation": "Personal Information",
     "myOrders": "My Orders",
     "profileInformation": "Profile Information",
     "edit": "Edit",
     "save": "Save",
     "userName": "User Name",
-    "userNamePlaceholder": "user name",
+    "userNamePlaceholder": "Enter your user name",
     "email": "Email",
-    "emailPlaceholder": "email",
-    "phone": "phone",
-    "phonePlaceholder": "phone",
+    "emailPlaceholder": "Enter your email",
+    "address": "Address",
+    "addressPlaceholder": "Enter your address",
+    "noOrders": "No orders found",
+    "noOrderItems": "No items found for this order",
     "orderHistory": "Order History",
     "orderId": "Order ID",
     "date": "Date",
-    "status": "Status",
+    "statusLabel": "Status",
     "amount": "Amount",
     "action": "Action",
     "orderDetails": "Order Details",
@@ -224,7 +270,10 @@
     "status": {
       "delivered": "Delivered",
       "processing": "Processing",
-      "shipped": "Shipped"
+      "shipped": "Shipped",
+      "pending": "Pending",
+      "new": "New",
+      "delivery": "Delivery"
     }
   },
   "errors": {
@@ -234,6 +283,14 @@
     "invalidEmail": "Please enter a valid email address",
     "invalidPhone": "Please enter a valid phone number",
     "somethingWentWrong": "Something went wrong",
+    "loginFailed": "Login failed",
+    "signupFailed": "Registration failed",
+    "emailRequired": "Email is required",
+    "emailAndCodeRequired": "Email and code are required",
+    "verificationFailed": "Verification failed",
+    "resendFailed": "Failed to resend code",
+    "forgetPasswordFailed": "Failed to send reset code",
+    "resetPasswordFailed": "Failed to reset password",
     "errorMessage": "We're sorry, but something unexpected happened. Please try again.",
     "goToHome": "Go to Home",
     "reloadPage": "Reload Page"
@@ -244,6 +301,13 @@
     "goToHome": "Go to Home",
     "goBack": "Go Back",
     "helpfulLinks": "You might be looking for:"
+  },
+  "pages": {
+    "shop": "Shop",
+    "pages": "Pages",
+    "blogs": "Blogs",
+    "aboutUs": "About us",
+    "comingSoon": "Coming soon."
   }
 }
 

@@ -9,13 +9,22 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { categories, features } from "../../lib/data";
+import { features } from "../../lib/data";
 import HeroBanner from "../common/HeroBanner";
+import { useCategories } from "../../hooks/categoriesHooks";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
+  const categoriesQuery = useCategories({ pageNumber: 1, pageSize: 9 });
+  const apiCategories = categoriesQuery.data?.categories || [];
+
+  const handleViewMore = () => {
+    const el = document.getElementById("categories-section");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
       {/* Top Section: Sidebar + Hero */}
@@ -24,29 +33,47 @@ const HeroSection = () => {
         <div className="hidden lg:block col-span-1">
           <div className="bg-background-white rounded-[28px] shadow-card p-5 xl:p-6">
             <div className="space-y-3">
-              {categories.map((category, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-                >
-                  <LayoutGrid className="w-5 h-5 text-text-gray group-hover:text-brand-primary transition-colors flex-shrink-0" />
-                  <span className="flex-1 text-sm text-text-primary font-medium">
-                    {t(`categories.${category.key}`)}
-                  </span>
-                  {category.hasChevron && (
-                    <ChevronIcon className="w-4 h-4 text-text-gray group-hover:text-brand-primary transition-colors flex-shrink-0" />
-                  )}
+              {categoriesQuery.isLoading ? (
+                <div className="px-4 py-3 text-sm text-text-secondary">
+                  {t("common.loading", { defaultValue: "Loading..." })}
                 </div>
-              ))}
+              ) : apiCategories.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-text-secondary">
+                  {t("common.noDataFound", { defaultValue: "No data found" })}
+                </div>
+              ) : (
+                apiCategories.map((category) => {
+                  const name = isRTL
+                    ? category.category_Name_Ar
+                    : category.category_Name_Eng;
+                  return (
+                    <Link
+                      key={category.category_Id}
+                      to={`/category/${category.category_Id}`}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                    >
+                      <LayoutGrid className="w-5 h-5 text-text-gray group-hover:text-brand-primary transition-colors flex-shrink-0" />
+                      <span className="flex-1 text-sm text-text-primary font-medium">
+                        {name || t("categories.categoryName")}
+                      </span>
+                      <ChevronIcon className="w-4 h-4 text-text-gray group-hover:text-brand-primary transition-colors flex-shrink-0" />
+                    </Link>
+                  );
+                })
+              )}
             </div>
 
             <div className="mt-4 pt-4 border-t border-border-light">
-              <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+              <button
+                type="button"
+                onClick={handleViewMore}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+              >
                 <Plus className="w-5 h-5 text-brand-primary flex-shrink-0" />
                 <span className="flex-1 text-sm text-brand-primary font-medium">
                   {t("common.viewMoreCategories")}
                 </span>
-              </div>
+              </button>
             </div>
           </div>
         </div>

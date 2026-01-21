@@ -1,16 +1,27 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useResetPassword } from "../hooks/useAuth";
 
 const ResetPassword = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const emailFromUrl = searchParams.get("email");
+  const codeFromUrl = searchParams.get("code");
+
+  const resetPasswordMutation = useResetPassword();
+
   const [formData, setFormData] = useState({
+    email: emailFromUrl || "",
+    code: codeFromUrl || "",
     newPassword: "",
     confirmPassword: "",
   });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,38 +29,45 @@ const ResetPassword = () => {
       ...prev,
       [name]: value,
     }));
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
-    
+    setSuccess("");
+
+    // Validate email and code
+    if (!formData.email || !formData.code) {
+      setError(t("errors.emailAndCodeRequired") || "Email and code are required");
+      return;
+    }
+
+    // Validate passwords match
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError(t("errors.passwordMismatch") || "Passwords do not match");
+      return;
+    }
+
+    // Validate password length
+    if (formData.newPassword.length < 6) {
+      setError(t("errors.passwordTooShort") || "Password must be at least 6 characters");
+      return;
+    }
+
     try {
-      // Validate passwords match
-      if (formData.newPassword !== formData.confirmPassword) {
-        setError(t("errors.passwordMismatch"));
-        setIsLoading(false);
-        return;
-      }
-      
-      // Validate password length
-      if (formData.newPassword.length < 6) {
-        setError(t("errors.passwordTooShort"));
-        setIsLoading(false);
-        return;
-      }
-      
-      // Handle reset password logic here
-      // TODO: Implement actual password reset API call
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error("Reset password error:", error);
-      }
-      setError(t("errors.somethingWentWrong") || "Something went wrong");
-    } finally {
-      setIsLoading(false);
+      await resetPasswordMutation.mutateAsync({
+        email: formData.email,
+        code: formData.code,
+        newpass: formData.newPassword,
+      });
+      setSuccess(t("resetPassword.success") || "Password reset successfully!");
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      setError(err?.message || t("errors.resetPasswordFailed") || "Failed to reset password");
     }
   };
 
@@ -66,11 +84,62 @@ const ResetPassword = () => {
           </h1>
         </div>
 
+        {/* Success Message */}
+        {success && (
+          <div className="mb-3 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            {success}
+          </div>
+        )}
+
         {/* Reset Password Form */}
         <form
           onSubmit={handleSubmit}
           className="space-y-3 "
         >
+          {/* Email Field (if not from URL) */}
+          {!emailFromUrl && (
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
+              >
+                {t('resetPassword.email') || 'Email Address'}
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder={t('resetPassword.emailPlaceholder') || 'Enter your email'}
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border-input border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                required
+              />
+            </div>
+          )}
+
+          {/* Code Field (if not from URL) */}
+          {!codeFromUrl && (
+            <div>
+              <label
+                htmlFor="code"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
+              >
+                {t('resetPassword.resetCode') || 'Reset Code'}
+              </label>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder={t('resetPassword.codePlaceholder') || 'Enter reset code from email'}
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border-input border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                required
+              />
+            </div>
+          )}
+
           {/* New Password Field */}
           <div>
             <label
@@ -147,10 +216,10 @@ const ResetPassword = () => {
           {/* Confirm Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={resetPasswordMutation.isPending}
             className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base rounded-button font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {isLoading ? (
+            {resetPasswordMutation.isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>{t('common.loading') || 'Loading...'}</span>

@@ -1,5 +1,3 @@
-import Header from "../components/common/Header";
-import Footer from "../components/common/Footer";
 import { useTranslation } from "react-i18next";
 import HeroBanner from "../components/common/HeroBanner";
 import CategoriesSection from "../components/homeOne/CategoriesSection";
@@ -9,7 +7,6 @@ const HomeFour = () => {
 
   return (
     <div className="bg-background-light-gray">
-      <Header />
       <div className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
         <HeroBanner
           showVerticalBar={true}
@@ -38,7 +35,6 @@ const HomeFour = () => {
       </div>
       <CategoriesSection />
       <BestSellingProducts />
-      <Footer />
     </div>
   );
 };

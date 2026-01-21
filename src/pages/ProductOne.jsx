@@ -1,358 +1,264 @@
-import { useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Header from "../components/common/Header";
-import Footer from "../components/common/Footer";
 import ProductCard from "../components/common/ProductCard";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "../context";
+import { useProduct, useProducts } from "../hooks/productsHooks";
+import { resolveApiAssetUrl } from "../utils";
 
 const ProductOne = () => {
+  const params = useParams();
+  const productId = params.id;
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === "ar";
   const { addItem } = useCart();
+
+  const { data: product, isLoading } = useProduct(productId);
+
+  const { data: relatedData } = useProducts({
+    category_Id: product?.category_Id,
+    PageNumber: 1,
+    PageSize: 10,
+  });
+
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Product images - memoized
-  const productImages = useMemo(
-    () => [
-      "/images/watchimg.png",
-      "/images/watchimg.png",
-      "/images/watchimg.png",
-    ],
-    []
-  );
+  // ===== Images =====
+  const images = useMemo(() => {
+    if (!product) return [];
+    if (product.images?.length) {
+      return product.images.map(
+        (i) => resolveApiAssetUrl(i.image_Path, "ProdImg") || "/images/watchimg.png"
+      );
+    }
+    return product?.base_Image
+      ? [resolveApiAssetUrl(product.base_Image, "ProdImg") || "/images/watchimg.png"]
+      : [];
+  }, [product]);
 
-  // Available colors - memoized
-  const colors = useMemo(
-    () => [
-      { name: "Dark Blue", value: "#1e3a8a" },
-      { name: "Dark Red", value: "#991b1b" },
-      { name: "Dark Green", value: "#166534" },
-      { name: "Black", value: "#000000" },
-      { name: "Light Pink", value: "#fce7f3" },
-      { name: "Light Purple", value: "#f3e8ff" },
-      { name: "Light Gray", value: "#f3f4f6" },
-    ],
-    []
-  );
+  useEffect(() => {
+    if (selectedImage >= images.length) setSelectedImage(0);
+  }, [images.length, selectedImage]);
 
-  // Available sizes - memoized
-  const sizes = useMemo(() => ["XS", "S", "M", "L", "XL", "XXL", "XXXL"], []);
+  if (isLoading || !product) return <p className="p-10">{t("common.loading")}</p>;
 
-  // Related products - memoized
-  const relatedProducts = useMemo(
-    () =>
-      Array.from({ length: 10 }, (_, i) => ({
-        id: i + 1,
-        imageSrc: "/images/watchimg.png",
-        title: t("product.defaultTitle"),
-        description: t("product.defaultDescription"),
-        price: 50.55,
-        currency: "$",
-      })),
-    [t]
-  );
+  // ===== Prices =====
+  const price =
+    typeof product.basic_Price === "number"
+      ? product.basic_Price
+      : null;
 
-  // Price calculations - memoized
-  const { currentPrice, originalPrice, discountPercent } = useMemo(() => {
-    const current = 250.0;
-    const original = 350.0;
-    const discount = Math.round(((original - current) / original) * 100);
-    return {
-      currentPrice: current,
-      originalPrice: original,
-      discountPercent: discount,
-    };
-  }, []);
+  const discount =
+    typeof product.discount_Percent === "number"
+      ? product.discount_Percent
+      : 0;
 
-  // Handlers - useCallback for performance
-  const handleQuantityChange = useCallback((delta) => {
-    setQuantity((prev) => Math.max(1, prev + delta));
-  }, []);
+  const oldPrice =
+    product.is_Discount && price !== null
+      ? price / (1 - discount / 100)
+      : null;
 
-  const handleAddToCart = useCallback(() => {
+  // ===== Sizes =====
+  const sizes =
+    product.variants
+      ?.flatMap((v) =>
+        v.variant_Attributes.filter(
+          (a) => a.attribute_Name_En === "Size"
+        )
+      )
+      .map((a) => a.value) || [];
+
+  const products = relatedData?.products || [];
+
+  const handleAddToCart = () => {
+    let variant = null;
+  
+    if (sizes.length > 0) {
+      // If there are sizes, the user must select one first.
+      variant = product.variants.find((v) =>
+        v.variant_Attributes.some((a) => a.value === selectedSize)
+      );
+  
+      if (!variant) {
+        alert(t("product.selectSizeFirst", { defaultValue: "Please select a size first." }));
+        return;
+      }
+    } else {
+      // No sizes available → use the first variant (if any).
+      variant = product.variants[0];
+    }
+  
+    if (!variant) {
+      alert(t("product.variantNotFound", { defaultValue: "Variant not found." }));
+      return;
+    }
+  
     addItem({
-      id: Date.now(),
-      image: productImages[selectedImage],
-      name: t("product.appleWatchTitle"),
-      color: colors[selectedColor]?.name || "Default",
-      size: selectedSize || "M",
-      quantity: quantity,
-      individualPrice: currentPrice,
+      productId: product.product_Id,
+      variantId: variant.variant_Id,
+      name:
+        i18n.language === "ar"
+          ? product.product_Name_Ar
+          : product.product_Name_En,
+      // If the variant has no price, fall back to the base product price.
+      price: variant.price ?? product.basic_Price ?? 0,
+      quantity,
+      image: images[0], // First image
     });
-  }, [
-    addItem,
-    productImages,
-    selectedImage,
-    colors,
-    selectedColor,
-    selectedSize,
-    quantity,
-    currentPrice,
-    t,
-  ]);
-
-  const handleBuy = useCallback(() => {
-    handleAddToCart();
-    // Navigate to cart or checkout
-  }, [handleAddToCart]);
+  };
+  
+  
 
   return (
-    <div className="bg-background-light-gray min-h-screen">
-      <Header />
-      <div className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
-        {/* Main Product Section */}
-        <div
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-12"
-          dir={isRTL ? "rtl" : "ltr"}
-        >
-          {/* Left Section: Product Images */}
-          <div
-            className={`lg:col-span-6 bg-white p-6 rounded-lg ${
-              isRTL ? "order-2" : "order-1"
-            } grid grid-cols-1 lg:grid-cols-12 gap-4`}
-          >
-            {/* Thumbnail Images - Desktop (Vertical Stack) */}
-            <div
-              className={`hidden lg:flex flex-col gap-4 lg:col-span-3 ${
-                isRTL ? "order-2" : "order-1"
-              }`}
-            >
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`w-full aspect-square rounded-lg overflow-hidden border-2 transition-all hover:border-[#FC813B] ${
-                    selectedImage === index
-                      ? "border-[#FC813B] ring-2 ring-[#FC813B] ring-offset-2"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`Product thumbnail ${index + 1}`}
-                    className="w-full h-full object-contain bg-gray-100 p-2"
-                    loading={index === 0 ? "eager" : "lazy"}
-                  />
-                </button>
-              ))}
-            </div>
-
-            {/* Thumbnail Images - Mobile/Tablet (Horizontal) */}
-            <div
-              className={`lg:hidden flex gap-4 mb-4 overflow-x-auto pb-2 ${
-                isRTL ? "flex-row-reverse" : ""
-              }`}
-            >
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedImage === index
-                      ? "border-[#FC813B] ring-2 ring-[#FC813B]"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`Product thumbnail ${index + 1}`}
-                    className="w-full h-full object-contain bg-gray-100"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
-
-            {/* Main Product Image */}
-            <div
-              className={`lg:col-span-9 ${
-                isRTL ? "order-1" : "order-2"
-              } flex items-center justify-center`}
-            >
-              <div className="w-full aspect-square max-w-full rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50">
+      <div className="px-4 lg:px-8 py-10">
+        {/* ===== DETAILS ===== */}
+        <div className="grid lg:grid-cols-12 gap-8">
+          {/* Images */}
+          <div className="lg:col-span-6 bg-white p-6 rounded-lg grid grid-cols-12 gap-4">
+            <div className="col-span-3 flex flex-col gap-3">
+              {images.map((img, i) => (
                 <img
-                  src={productImages[selectedImage]}
-                  alt={t("product.appleWatchTitle")}
-                  className="w-full h-full object-contain p-4 lg:p-8"
-                  loading="eager"
+                  alt={`Product ${i + 1}`}
+                  key={i}
+                  src={img}
+                  onClick={() => setSelectedImage(i)}
+                  className={`cursor-pointer border rounded ${
+                    selectedImage === i ? "border-orange-500" : ""
+                  }`}
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/watchimg.png";
+                  }}
                 />
-              </div>
+              ))}
+            </div>
+
+            <div className="col-span-9 flex items-center justify-center bg-gray-100 rounded">
+              <img
+                src={images[selectedImage]}
+                alt="Selected product"
+                className="max-h-[400px]"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/watchimg.png";
+                }}
+              />
             </div>
           </div>
 
-          {/* Right Section: Product Details */}
-          <div
-            className={`lg:col-span-6 ${
-              isRTL ? "order-1 text-right" : "order-2 text-left"
-            } flex flex-col justify-center`}
-          >
-            <h1 className="text-2xl lg:text-3xl font-bold text-[#212844] mb-4">
-              {t("product.appleWatchTitle")}
+          {/* Info */}
+          <div className="lg:col-span-6">
+            <h1 className="text-3xl font-bold">
+              {i18n.language === "ar"
+                ? product.product_Name_Ar
+                : product.product_Name_En}
             </h1>
 
-            {/* Price */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl lg:text-3xl font-bold text-[#FC813B]">
-                  ${currentPrice.toFixed(1)}
-                </span>
-                <span className="text-lg text-gray-400 line-through">
-                  ${originalPrice.toFixed(1)}
-                </span>
-              </div>
-              <span className="bg-red-500 text-white px-3 py-1 rounded text-sm font-semibold">
-                {discountPercent}% {t("common.off")}
-              </span>
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              {t("product.appleWatchDescription")}
+            <p className="mt-4 text-gray-600">
+              {i18n.language === "ar"
+                ? product.description_Ar
+                : product.description_En}
             </p>
 
-            {/* Available Colors */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-[#212844] mb-3">
-                {t("product.availableColors")}
-              </h3>
-              <div
-                className={`flex gap-3 flex-wrap ${
-                  isRTL ? "justify-end" : "justify-start"
-                }`}
-              >
-                {colors.map((color, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedColor(index)}
-                    className={`w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor === index
-                        ? "border-[#FC813B] scale-110"
-                        : "border-gray-300"
-                    }`}
-                    style={{ backgroundColor: color.value }}
-                    aria-label={color.name}
-                  />
-                ))}
-              </div>
+            <div className="mt-4 flex gap-4 items-center">
+              {price !== null && (
+                <span className="text-3xl text-orange-500">
+                  {price.toFixed(2)} EGP
+                </span>
+              )}
+
+              {oldPrice !== null && (
+                <span className="line-through text-gray-400">
+                  {oldPrice.toFixed(2)}
+                </span>
+              )}
             </div>
 
-            {/* Available Sizes */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-[#212844] mb-3">
-                {t("product.availableSizes")}
-              </h3>
-              <div
-                className={`flex gap-2 flex-wrap ${
-                  isRTL ? "justify-end" : "justify-start"
-                }`}
-              >
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-lg border-2 font-semibold transition-all ${
-                      selectedSize === size
-                        ? "border-[#FC813B] bg-[#FC813B] text-white"
-                        : "border-gray-300 text-[#212844] hover:border-[#FC813B]"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+            {/* Sizes */}
+            {sizes.length > 0 && (
+              <div className="mt-6">
+                <h3>{t("product.availableSizes")}</h3>
+                <div className="flex gap-2 mt-2">
+                  {sizes.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSize(s)}
+                      className={`px-4 py-2 border ${
+                        selectedSize === s
+                          ? "bg-orange-500 text-white"
+                          : ""
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Quantity Selector and Action Buttons */}
-            <div
-              className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 ${
-                isRTL ? "sm:flex-row-reverse" : ""
-              }`}
-            >
-              {/* Quantity Selector */}
-              <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
-                  className={`p-3 transition-colors ${
-                    quantity <= 1
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="w-4 h-4" />
+            {/* Quantity */}
+            <div className="mt-6 flex gap-4">
+              <div className="flex border">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+                  <Minus />
                 </button>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) =>
-                    setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-                  }
-                  className="w-16 text-center border-0 focus:outline-none bg-white"
-                  min="1"
-                />
-                <button
-                  onClick={() => handleQuantityChange(1)}
-                  className="p-3 bg-[#FC813B] text-white hover:bg-[#e6733a] transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="w-4 h-4" />
+                <input value={quantity} readOnly className="w-12 text-center" />
+                <button onClick={() => setQuantity(quantity + 1)}>
+                  <Plus />
                 </button>
               </div>
 
-              {/* Action Buttons */}
               <button
                 onClick={handleAddToCart}
-                className={`flex-1 bg-[#FC813B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#e6733a] transition-colors flex items-center justify-center gap-2 shadow-md ${
-                  isRTL ? "sm:order-2" : ""
-                }`}
-                aria-label={t("common.addToCart")}
+                className="bg-orange-500 text-white px-6 py-3 flex gap-2"
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart />
                 {t("common.addToCart")}
-              </button>
-              <button
-                onClick={handleBuy}
-                className={`flex-1 bg-white text-[#FC813B] border-2 border-[#FC813B] px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors ${
-                  isRTL ? "sm:order-1" : ""
-                }`}
-                aria-label={t("common.buy")}
-              >
-                {t("common.buy")}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Related Products Section */}
-        <div className="mt-12">
-          <h2
-            className={`text-2xl lg:text-3xl font-bold text-[#212844] mb-6 ${
-              isRTL ? "text-right" : "text-left"
-            }`}
-          >
+        {/* ===== RELATED ===== */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6">
             {t("product.relatedProducts")}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
-            {relatedProducts.map((product) => (
+
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+            {products.map((p) => (
               <ProductCard
-                key={product.id}
-                imageSrc={product.imageSrc}
-                title={product.title}
-                description={product.description}
-                price={product.price}
-                currency={product.currency}
-                showHoverActions={true}
+                key={p.product_Id}
+                imageSrc={p.base_Image}
+                title={
+                  i18n.language === "ar"
+                    ? p.product_Name_Ar
+                    : p.product_Name_En
+                }
+                description={
+                  (i18n.language === "ar"
+                    ? p.description_Ar
+                    : p.description_En
+                  )?.slice(0, 80) + ((i18n.language === "ar"
+                    ? p.description_Ar
+                    : p.description_En
+                  )?.length > 80 ? "..." : "")
+                }
+                price={p.basic_Price}
+                discountPercent={p.discount_Percent}
+                oldPrice={
+                  p.is_Discount && typeof p.basic_Price === "number"
+                    ? p.basic_Price / (1 - p.discount_Percent / 100)
+                    : null
+                }
+                onBuy={() => navigate(`/product/${p.product_Id}`)}
               />
             ))}
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

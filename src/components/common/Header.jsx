@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { TopBar, MainHeader, Navbar } from "./header/index";
 import { navigationLinks } from "../../lib/data";
 
 const Header = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
+  const navigate = useNavigate();
   
   const getTranslationKey = (link) => {
     const keyMap = {
@@ -19,9 +21,10 @@ const Header = () => {
     return keyMap[link] || link;
   };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   return (
-    <header className="w-full">
+    <header className="w-full fixed top-0 left-0 right-0 z-50">
       <TopBar />
       <MainHeader />
 
@@ -71,7 +74,9 @@ const Header = () => {
               className="flex flex-1 gap-0"
               onSubmit={(e) => {
                 e.preventDefault();
-                // Handle search logic here
+                const q = search.trim();
+                navigate(q ? `/?q=${encodeURIComponent(q)}` : "/");
+                setIsMenuOpen(false);
               }}
             >
               {/* Search Input */}
@@ -79,20 +84,57 @@ const Header = () => {
                 <img
                   src="/SVG/search-normal.svg"
                   alt="search"
-                  className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 opacity-30"
+                  className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 opacity-30 ${
+                    isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
+                  }`}
                 />
                 <input
                   type="text"
-                  placeholder={t('common.searchPlaceholder')}
-                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-[#f5f5f5] border border-input-border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-brand-primary text-sm sm:text-base text-[#9b9b9b]"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("common.searchPlaceholder")}
+                  className={`w-full py-2.5 sm:py-3 bg-[#f5f5f5] border border-input-border focus:outline-none focus:ring-2 focus:ring-brand-primary text-sm sm:text-base text-text-primary placeholder:text-[#9b9b9b] ${
+                    isRTL
+                      ? "pr-10 sm:pr-12 pl-10 sm:pl-12 rounded-r-lg text-right"
+                      : "pl-10 sm:pl-12 pr-10 sm:pr-12 rounded-l-lg text-left"
+                  }`}
                 />
+                {!!search.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      navigate("/");
+                    }}
+                    className={`absolute top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-black/5 text-text-secondary flex items-center justify-center ${
+                      isRTL ? "left-2 sm:left-3" : "right-2 sm:right-3"
+                    }`}
+                    aria-label={t("common.clear", { defaultValue: "Clear" })}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      className="w-4 h-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M18 6L6 18M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
               {/* Search Button */}
               <button
                 type="submit"
-                className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-r-lg font-medium text-sm sm:text-base transition-colors whitespace-nowrap"
+                className={`bg-brand-primary hover:bg-brand-primary-hover text-white px-6 sm:px-8 py-2.5 sm:py-3 font-medium text-sm sm:text-base transition-colors whitespace-nowrap ${
+                  isRTL ? "rounded-l-lg" : "rounded-r-lg"
+                }`}
               >
-                {t('common.search')}
+                {t("common.search")}
               </button>
             </form>
           </div>

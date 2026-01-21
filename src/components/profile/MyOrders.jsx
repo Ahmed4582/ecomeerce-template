@@ -1,74 +1,36 @@
 import { useTranslation } from "react-i18next";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCustomerOrders } from "../../hooks/ordersHooks";
 
 const MyOrders = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const navigate = useNavigate();
 
-  // Sample orders data
-  const orders = [
-    {
-      id: "ORD-001",
-      date: "2024-01-15",
-      status: "Delivered",
-      amount: "$250.0",
-    },
-    {
-      id: "ORD-002",
-      date: "2024-01-14",
-      status: "Processing",
-      amount: "$180.0",
-    },
-    {
-      id: "ORD-003",
-      date: "2024-01-13",
-      status: "Shipped",
-      amount: "$320.0",
-    },
-    {
-      id: "ORD-004",
-      date: "2024-01-12",
-      status: "Delivered",
-      amount: "$150.0",
-    },
-    {
-      id: "ORD-005",
-      date: "2024-01-11",
-      status: "Processing",
-      amount: "$280.0",
-    },
-    {
-      id: "ORD-006",
-      date: "2024-01-10",
-      status: "Shipped",
-      amount: "$200.0",
-    },
-    {
-      id: "ORD-007",
-      date: "2024-01-09",
-      status: "Delivered",
-      amount: "$350.0",
-    },
-    {
-      id: "ORD-008",
-      date: "2024-01-08",
-      status: "Processing",
-      amount: "$120.0",
-    },
-  ];
+  const ordersQuery = useCustomerOrders({
+    PageNumber: 1,
+    PageSize: 50,
+  });
+
+  const data = ordersQuery.data;
+  const orders = data?.orders || [];
 
   const getStatusTranslation = (status) => {
+    const normalized = String(status || "").toLowerCase();
     const statusMap = {
-      Delivered: t("profile.status.delivered"),
-      Processing: t("profile.status.processing"),
-      Shipped: t("profile.status.shipped"),
+      delivered: t("profile.status.delivered", { defaultValue: "Delivered" }),
+      processing: t("profile.status.processing", { defaultValue: "Processing" }),
+      shipped: t("profile.status.shipped", { defaultValue: "Shipped" }),
+      pending: t("profile.status.pending", { defaultValue: "Pending" }),
+      new: t("profile.status.new", { defaultValue: "New" }),
+      delivery: t("profile.status.delivery", { defaultValue: "Delivery" }),
     };
-    return statusMap[status] || status;
+    return statusMap[normalized] || status || "—";
   };
 
   const getStatusColor = (status) => {
+    const normalized = String(status || "").toLowerCase();
     switch (status) {
       case "Delivered":
         return "text-green-600 bg-green-100";
@@ -76,6 +38,23 @@ const MyOrders = () => {
         return "text-yellow-600 bg-yellow-100";
       case "Shipped":
         return "text-blue-600 bg-blue-100";
+      default:
+        break;
+    }
+
+    switch (normalized) {
+      case "delivered":
+        return "text-green-600 bg-green-100";
+      case "processing":
+        return "text-yellow-600 bg-yellow-100";
+      case "shipped":
+        return "text-blue-600 bg-blue-100";
+      case "pending":
+        return "text-orange-700 bg-orange-100";
+      case "new":
+        return "text-gray-700 bg-gray-100";
+      case "delivery":
+        return "text-purple-700 bg-purple-100";
       default:
         return "text-gray-600 bg-gray-100";
     }
@@ -94,6 +73,19 @@ const MyOrders = () => {
 
       {/* Orders Table */}
       <div className="overflow-x-auto">
+        {ordersQuery.isLoading ? (
+          <div className="text-text-secondary">
+            {t("common.loading", { defaultValue: "Loading..." })}
+          </div>
+        ) : ordersQuery.isError ? (
+          <div className="text-red-600">
+            {ordersQuery.error?.message || "Error"}
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="text-text-secondary">
+            {t("profile.noOrders", { defaultValue: "No orders yet." })}
+          </div>
+        ) : (
         <table className="w-full text-center">
           <thead>
             <tr className="border-b-2 border-gray-200">
@@ -104,7 +96,7 @@ const MyOrders = () => {
                 {t("profile.date")}
               </th>
               <th className="px-4 py-3 text-sm font-semibold text-[#212844] text-center">
-                {t("profile.status")}
+                {t("profile.statusLabel", { defaultValue: "Status" })}
               </th>
               <th className="px-4 py-3 text-sm font-semibold text-[#212844] text-center">
                 {t("profile.amount")}
@@ -115,33 +107,35 @@ const MyOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
+            {orders.map((order) => (
               <tr
-                key={index}
+                key={order.order_Id}
                 className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
               >
                 <td className="px-4 py-4 text-sm text-gray-700 text-center">
-                  {order.id}
+                  #{order.order_Id}
                 </td>
                 <td className="px-4 py-4 text-sm text-gray-700 text-center">
-                  {order.date}
+                  {order.order_Date ? new Date(order.order_Date).toLocaleDateString() : "—"}
                 </td>
                 <td className="px-4 py-4 text-sm text-center">
                   <span
                     className={`inline-block px-3 py-1 rounded-full font-medium ${getStatusColor(
-                      order.status
+                      order.order_Status
                     )}`}
                   >
-                    {getStatusTranslation(order.status)}
+                    {getStatusTranslation(order.order_Status)}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-sm font-semibold text-[#FC813B] text-center">
-                  {order.amount}
+                  {typeof order.total_Amount === "number"
+                    ? order.total_Amount.toFixed(2)
+                    : Number(order.total_Amount || 0).toFixed(2)}
                 </td>
                 <td className="px-4 py-4 text-center">
                   <button
                     type="button"
-                    onClick={() => navigate(`/profile/orders/${order.id}`)}
+                    onClick={() => navigate(`/profile/orders/${order.order_Id}`)}
                     className="w-10 h-10 bg-[#FC813B] rounded-full flex items-center justify-center hover:bg-[#e6733a] transition-colors relative mx-auto"
                   >
                     <Eye className="w-6 h-6 text-white" />
@@ -151,6 +145,7 @@ const MyOrders = () => {
             ))}
           </tbody>
         </table>
+        )}
       </div>
     </div>
   );

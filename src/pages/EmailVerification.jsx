@@ -1,15 +1,64 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useVerifyAccount, useResendActivationCode } from "../hooks/useAuth";
 
-const EmailVerification = ({ email = "test@gmail.com", onVerify }) => {
-  const { t } = useTranslation();
+const EmailVerification = () => {
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email") || "";
+  
+  const verifyMutation = useVerifyAccount();
+  const resendMutation = useResendActivationCode();
+
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const updateCode = (newCode) => {
     setCode(newCode);
-    if (newCode.every((digit) => digit !== "") && onVerify) {
-      onVerify(newCode.join(""));
+    // Auto-submit when all 6 digits are filled
+    if (newCode.every((digit) => digit !== "")) {
+      handleVerify(newCode.join(""));
+    }
+  };
+
+  const handleVerify = async (verificationCode) => {
+    if (!email) {
+      setError(t("errors.emailRequired") || "Email is required");
+      return;
+    }
+
+    try {
+      await verifyMutation.mutateAsync({ email, code: verificationCode });
+      setSuccess(t("emailVerification.success") || "Account verified successfully!");
+      setError("");
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      setError(err?.message || t("errors.verificationFailed") || "Verification failed");
+      setSuccess("");
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!email) {
+      setError(t("errors.emailRequired") || "Email is required");
+      return;
+    }
+
+    try {
+      await resendMutation.mutateAsync({ email, lan: i18n.language || "en" });
+      setSuccess(t("emailVerification.codeResent") || "Verification code resent successfully!");
+      setError("");
+      setCode(["", "", "", "", "", ""]); // Reset code
+    } catch (err) {
+      setError(err?.message || t("errors.resendFailed") || "Failed to resend code");
+      setSuccess("");
     }
   };
 
@@ -58,11 +107,11 @@ const EmailVerification = ({ email = "test@gmail.com", onVerify }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const verificationCode = code.join("");
-    if (verificationCode.length === 6 && onVerify) {
-      onVerify(verificationCode);
+    if (verificationCode.length === 6) {
+      await handleVerify(verificationCode);
     }
   };
 
@@ -83,6 +132,20 @@ const EmailVerification = ({ email = "test@gmail.com", onVerify }) => {
             <span className="text-brand-primary lowercase">{email}</span>
           </p>
         </div>
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-3 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            {success}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Verification Code Input */}
         <form
@@ -121,12 +184,33 @@ const EmailVerification = ({ email = "test@gmail.com", onVerify }) => {
           {/* Verification Button */}
           <button
             type="submit"
-            disabled={code.some((digit) => digit === "")}
-            className="w-full  bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base font-medium rounded-button transition-opacity focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
+            disabled={code.some((digit) => digit === "") || verifyMutation.isPending}
+            className="w-full bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base font-medium rounded-button transition-opacity focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 flex items-center justify-center gap-2"
           >
-            {t('common.verification')}
+            {verifyMutation.isPending ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {t('common.loading')}
+              </>
+            ) : (
+              t('common.verification')
+            )}
           </button>
         </form>
+
+        {/* Resend Code */}
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={handleResendCode}
+            disabled={resendMutation.isPending || !email}
+            className="text-sm text-brand-primary hover:text-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {resendMutation.isPending
+              ? t('common.loading')
+              : t('emailVerification.resendCode') || 'Resend Code'}
+          </button>
+        </div>
       </div>
     </div>
   );

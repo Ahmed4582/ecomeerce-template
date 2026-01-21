@@ -1,5 +1,122 @@
 # E-commerce Template
 
+A React-based e-commerce frontend template with a modern UI, multi-language support (English/Arabic + RTL), an admin area, and an API layer built on Axios + React Query.
+
+## Features
+
+- **Internationalization (i18n)**: English and Arabic with automatic RTL/LTR switching
+- **Responsive UI**: Tailwind CSS, mobile-first layout, Swiper carousels
+- **Routing & layouts**: Public pages, protected user pages, and an admin area with its own layout
+- **Auth flows (UI + API integration)**: login, signup, email verification, forget/reset password
+- **Cart**: persistent cart using localStorage (add/remove/update quantities)
+- **API client**: Axios instance with auth header and refresh-token handling
+- **E2E tests**: Playwright configuration included
+
+## Tech stack
+
+- React (Create React App)
+- React Router
+- Tailwind CSS
+- TanStack React Query
+- Axios
+- i18next / react-i18next
+- Swiper
+- Playwright (E2E)
+
+## Getting started
+
+### Prerequisites
+
+- Node.js (recommended: 18+)
+- npm
+
+### Install & run
+
+```bash
+npm install
+npm start
+```
+
+Open `http://localhost:3000`.
+
+## Environment variables
+
+Create a `.env` file in the project root (do not commit it):
+
+```env
+REACT_APP_API_URL=https://your-api.example.com
+```
+
+Notes:
+- The API base URL is used by the Axios client in `src/api/axiosClient.js`.
+- Language is stored by i18next in localStorage under `i18nextLng`.
+
+## Project structure (high level)
+
+```text
+src/
+  api/                 # API functions (Axios client wrapper)
+  components/          # UI components (common, home*, cart, profile, admin)
+  context/             # App contexts (Auth, Cart, Currency, User)
+  hooks/               # React Query hooks and helper hooks
+  locales/             # i18n dictionaries (en/ar)
+  pages/               # Route pages
+  routes/              # Route guards (ProtectedRoute, AdminRoute)
+  store/               # Redux store (currently minimal usage)
+  utils/               # Utilities (formatters, asset URL helpers, validators)
+  App.jsx              # Routes + lazy-loaded pages
+  index.jsx            # App entry + providers
+```
+
+## App architecture overview
+
+### Routing
+
+- **Public**: `/`, `/product/:id`, `/shop`, `/category/:id`, ...
+- **Auth (no header/footer)**: `/login`, `/signup`, `/email-verification`, `/forget-password`, `/reset-password`
+- **Protected**: `/cart`, `/checkout`, `/profile`, `/profile/orders`, ...
+- **Admin**: `/admin/*` (guarded by role)
+
+### State management
+
+- **React Query**: server state (products, categories, orders, etc.)
+- **Contexts**:
+  - `AuthContext`: user session + login/logout + refresh user details
+  - `CartContext`: cart items persisted to localStorage
+  - `CurrencyContext`: selected currency + formatting (no conversion logic yet)
+  - `UserContext`: optional user profile state (may overlap with AuthContext depending on your needs)
+- **Redux**: included (auth slice) but intentionally minimal in the current template
+
+### API layer
+
+The API functions in `src/api/*` call a single Axios client:
+
+- Adds `Authorization: Bearer <token>` for protected endpoints
+- Sends `accept-language` header based on the active i18n language
+- Handles `401` refresh-token flow and retries the original request when possible
+
+## Scripts
+
+```bash
+npm start         # Run dev server
+npm run build     # Create production build
+npm test          # CRA tests (if present)
+npm run test:e2e  # Playwright E2E tests
+npm run test:e2e:ui
+```
+
+## Notes for evaluation / next improvements
+
+- Consider choosing **one** auth state source (Context OR Redux) to avoid duplication as the project grows.
+- Consider adding an `.env.example` file to document required env vars without committing secrets.
+- Add proper pluralization rules for Arabic in i18n if you need accurate grammar (e.g., cart item counts).
+
+## License
+
+Private project (adjust as needed).
+
+# E-commerce Template
+
 A modern, fully-featured e-commerce template built with React.js, featuring multi-language support (English/Arabic), responsive design, and optimized performance.
 
 ## 🚀 Features

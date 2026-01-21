@@ -2,14 +2,21 @@ import { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { User, ShoppingBag, Camera } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "../../context";
+import { useAuth } from "../../context/AuthContext";
 
 const ProfileSidebar = () => {
   const { t, i18n } = useTranslation();
-  const { user } = useUser();
+  const { user } = useAuth();
   const isRTL = i18n.language === "ar";
   const navigate = useNavigate();
   const location = useLocation();
+
+  const displayName =
+    user?.user_Name ||
+    user?.fullName ||
+    user?.name ||
+    (user?.email ? user.email.split("@")[0] : null) ||
+    t("profile.userName", { defaultValue: "User Name" });
 
   const menuItems = useMemo(
     () => [
@@ -63,7 +70,7 @@ const ProfileSidebar = () => {
               <button
                 type="button"
                 className="absolute bottom-0 right-0 w-8 h-8 bg-[#FC813B] rounded-full flex items-center justify-center hover:bg-[#e6733a] transition-colors shadow-sm"
-                aria-label={t("profile.edit") || "Edit profile picture"}
+                aria-label={t("profile.edit", { defaultValue: "Edit" })}
               >
                 <Camera className="w-4 h-4 text-white" />
               </button>
@@ -71,9 +78,14 @@ const ProfileSidebar = () => {
           </div>
           <div className=" text-center">
             <h3 className="text-lg font-bold text-[#212844] ">
-              {user?.fullName || user?.name || t("profile.userName")}
+              {displayName}
             </h3>
-            <p className="text-sm text-gray-600">{user?.email || t("profile.emailPlaceholder")}</p>
+            <p className="text-sm text-gray-600">
+              {user?.email || t("profile.emailPlaceholder", { defaultValue: "Email" })}
+            </p>
+            {!!user?.address && (
+              <p className="text-xs text-gray-500 mt-1">{user.address}</p>
+            )}
           </div>
         </div>
       </div>

@@ -1,15 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../context/AuthContext";
+import { useUserDetails } from "../../hooks/usersHooks";
 
 const ProfileInformation = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const userDetailsQuery = useUserDetails(!!user);
   const isRTL = i18n.language === "ar";
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    userName: "user name",
-    email: "user@gmail.com",
-    phone: "+963 4563 2548 52",
+    userName: "",
+    email: "",
+    address: "",
   });
+
+  useEffect(() => {
+    const details = userDetailsQuery.data ?? null;
+    const detailsUser = details?.user ?? details?.User ?? details ?? null;
+
+    const userNameFromAny =
+      detailsUser?.user_Name ||
+      detailsUser?.userName ||
+      detailsUser?.name ||
+      user?.user_Name ||
+      user?.fullName ||
+      user?.name ||
+      (user?.email ? user.email.split("@")[0] : "") ||
+      "";
+
+    const emailFromAny = detailsUser?.email || user?.email || "";
+    const addressFromAny =
+      detailsUser?.address ||
+      detailsUser?.shipping_Address ||
+      detailsUser?.shippingAddress ||
+      user?.address ||
+      user?.shipping_Address ||
+      user?.shippingAddress ||
+      "";
+
+    setFormData((prev) => ({
+      ...prev,
+      userName: userNameFromAny,
+      email: emailFromAny,
+      address: addressFromAny,
+    }));
+  }, [user, userDetailsQuery.data]);
 
   const handleChange = (e) => {
     setFormData({
@@ -32,7 +68,7 @@ const ProfileInformation = () => {
         }`}
       >
         <h2 className="text-2xl sm:text-3xl font-bold text-[#212844]">
-          {t("profile.profileInformation")}
+          {t("profile.profileInformation", { defaultValue: "Profile Information" })}
         </h2>
         {isEditing ? (
           <button
@@ -40,7 +76,7 @@ const ProfileInformation = () => {
             onClick={handleSave}
             className="bg-[#FC813B] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#e6733a] transition-colors"
           >
-            {t("profile.save")}
+            {t("profile.save", { defaultValue: "Save" })}
           </button>
         ) : (
           <button
@@ -48,7 +84,7 @@ const ProfileInformation = () => {
             onClick={() => setIsEditing(true)}
             className="bg-[#FC813B] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#e6733a] transition-colors"
           >
-            {t("profile.edit")}
+            {t("profile.edit", { defaultValue: "Edit" })}
           </button>
         )}
       </div>
@@ -61,7 +97,7 @@ const ProfileInformation = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("profile.userName")}
+                  {t("profile.userName", { defaultValue: "User Name" })}
                 </label>
                 <input
                   type="text"
@@ -69,14 +105,16 @@ const ProfileInformation = () => {
                   value={formData.userName}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#FC813B] text-sm sm:text-base bg-white"
-                  placeholder={t("profile.userNamePlaceholder")}
+                  placeholder={t("profile.userNamePlaceholder", {
+                    defaultValue: "Enter your user name",
+                  })}
                 />
               </div>
 
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("profile.email")}
+                  {t("profile.email", { defaultValue: "Email" })}
                 </label>
                 <input
                   type="email"
@@ -84,23 +122,27 @@ const ProfileInformation = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#FC813B] text-sm sm:text-base bg-white"
-                  placeholder={t("profile.emailPlaceholder")}
+                  placeholder={t("profile.emailPlaceholder", {
+                    defaultValue: "Enter your email",
+                  })}
                 />
               </div>
             </div>
 
-            {/* Phone */}
+            {/* Address */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("profile.phone")}
+                {t("profile.address", { defaultValue: "Address" })}
               </label>
               <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
+                type="text"
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#FC813B] text-sm sm:text-base bg-white"
-                placeholder={t("profile.phonePlaceholder")}
+                placeholder={t("profile.addressPlaceholder", {
+                  defaultValue: "Enter your address",
+                })}
               />
             </div>
           </>
@@ -109,22 +151,28 @@ const ProfileInformation = () => {
             {/* User Name and Email side by side */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="text-base text-[#212844]">
-                <span className="font-medium">{t("profile.userName")} : </span>
+                <span className="font-medium">
+                  {t("profile.userName", { defaultValue: "User Name" })} :{" "}
+                </span>
                 <span className="text-gray-500 font-normal">
-                  {formData.userName}
+                  {formData.userName || "—"}
                 </span>
               </div>
               <div className="text-base text-[#212844]">
-                <span className="font-medium">{t("profile.email")} : </span>
+                <span className="font-medium">
+                  {t("profile.email", { defaultValue: "Email" })} :{" "}
+                </span>
                 <span className="text-gray-500 font-normal">
-                  {formData.email}
+                  {formData.email || "—"}
                 </span>
               </div>
-              {/* Phone on separate line */}
+              {/* Address on separate line */}
               <div className="text-base text-[#212844]">
-                <span className="font-medium">{t("profile.phone")} : </span>
+                <span className="font-medium">
+                  {t("profile.address", { defaultValue: "Address" })} :{" "}
+                </span>
                 <span className="text-gray-500 font-normal">
-                  {formData.phone}
+                  {formData.address || "—"}
                 </span>
               </div>
             </div>

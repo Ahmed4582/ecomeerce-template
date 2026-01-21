@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Header from "../components/common/Header";
-import Footer from "../components/common/Footer";
 import HeroBanner from "../components/common/HeroBanner";
 import { useTranslation } from "react-i18next";
 import { homeTwoHeroBanners } from "../lib/data";
@@ -36,7 +34,6 @@ const HomeTwo = () => {
 
   return (
     <div className="bg-background-light-gray">
-      <Header />
       {/* Hero Banner */}
       <div className="px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
@@ -143,8 +140,6 @@ const HomeTwo = () => {
 
       {/* Popular Products Section */}
       <PopularProductsSection />
-
-      <Footer />
     </div>
   );
 };

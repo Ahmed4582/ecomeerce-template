@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/common/Header";
-import Footer from "../components/common/Footer";
 
 const NotFound = () => {
   const { t, i18n } = useTranslation();
@@ -10,7 +8,6 @@ const NotFound = () => {
 
   return (
     <div className="bg-background-light-gray min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div
           className="max-w-2xl w-full text-center"
@@ -101,7 +98,6 @@ const NotFound = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

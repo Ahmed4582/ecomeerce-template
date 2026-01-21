@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 const CategoriesGrid = () => {
-  const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === "ar";
+  const { t } = useTranslation();
 
   // Generate 12 identical watch category items
   const watchCategories = Array.from({ length: 14 }, (_, i) => ({
@@ -30,11 +29,11 @@ const CategoriesGrid = () => {
               <div
                 className="rounded-full aspect-square w-full max-w-[120px] sm:max-w-[140px] lg:max-w-[160px] flex items-center justify-center p-4 sm:p-6 hover:shadow-md transition-shadow relative overflow-hidden mb-3"
                 style={{
-                  background: 'linear-gradient(to bottom, #F3F4F6 0%, #F3F4F6 55%, #e5e7eb 56%, #e5e7eb 100%)' // top light gray, bottom a bit darker gray
+                  background:
+                    "linear-gradient(to bottom, #F3F4F6 0%, #F3F4F6 55%, #e5e7eb 56%, #e5e7eb 100%)", // top light gray, bottom a bit darker gray
                 }}
               >
                 {/* Background Image - Subtle */}
-          
 
                 {/* Watch Image */}
                 <div className="relative z-10 w-full h-full flex items-center justify-center">
