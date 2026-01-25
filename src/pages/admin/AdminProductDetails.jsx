@@ -91,7 +91,7 @@ const AdminProductDetails = () => {
           const raw = getAttrValue(r, "Color");
           const values = raw
             ? String(raw)
-                .split(/[,\|/]/)
+                .split(/[,|/]/)
                 .map((x) => x.trim())
                 .filter(Boolean)
             : [];

@@ -22,7 +22,10 @@ const AdminProductUpsert = () => {
   const updateMutation = useUpdateProduct();
 
   const categories = categoriesQuery.data?.categories || [];
-  const attributes = attributesQuery.data || [];
+  const attributes = useMemo(
+    () => attributesQuery.data || [],
+    [attributesQuery.data]
+  );
 
   const [step, setStep] = useState(1); // 1: Basic info, 2: Sizes/colors/quantities
 
